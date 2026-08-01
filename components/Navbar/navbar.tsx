@@ -43,7 +43,7 @@ const NAV_ITEMS: readonly NavItem[] = [
   },
   {
     label: "Services",
-    href: "/services",
+    href: "/service",
     description: "Transparent, step-by-step booking",
   },
   {

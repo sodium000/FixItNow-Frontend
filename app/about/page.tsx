@@ -183,18 +183,18 @@ export default function AboutSection() {
           <div ref={leftColRef} className="lg:col-span-6 relative">
             <div className="relative mx-auto max-w-md lg:max-w-none">
               {/* Main Image */}
-              <div className="relative h-[380px] sm:h-[460px] w-full rounded-[32px] overflow-hidden border-2 border-slate-800 shadow-2xl">
+              <div className="relative h-95 sm:h-115 w-full rounded-[32px] overflow-hidden border-2 border-slate-800 shadow-2xl">
                 <Image
                   src=""
                   alt="Certified AC Technician at work"
                   fill
                   className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-transparent to-transparent" />
               </div>
 
               {/* Floating Highlight Card */}
-              <div className="absolute -bottom-6 -right-2 sm:right-6 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 p-5 rounded-2xl shadow-2xl flex items-center gap-4 max-w-[260px]">
+              <div className="absolute -bottom-6 -right-2 sm:right-6 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 p-5 rounded-2xl shadow-2xl flex items-center gap-4 max-w-65">
                 <div className="w-12 h-12 rounded-xl bg-amber-400 flex items-center justify-center shrink-0 text-slate-950">
                   <Award className="w-6 h-6" />
                 </div>
