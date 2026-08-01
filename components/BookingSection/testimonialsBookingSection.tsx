@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import * as React from "react";
@@ -162,7 +163,7 @@ export default function TestimonialsBookingSection() {
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-950/40" />
+              <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/80 to-slate-950/40" />
             </div>
 
             <div className="relative z-10 space-y-6">
@@ -231,7 +232,7 @@ export default function TestimonialsBookingSection() {
                 </div>
 
                 {/* Quote Text */}
-                <p className="text-slate-200 text-sm sm:text-base italic leading-relaxed min-h-[4.5rem]">
+                <p className="text-slate-200 text-sm sm:text-base italic leading-relaxed min-h-18">
                   "{activeTestimonial.quote}"
                 </p>
 
@@ -291,7 +292,7 @@ export default function TestimonialsBookingSection() {
                   Schedule a Service
                 </span>
               </div>
-              <div className="h-px bg-white/20 flex-grow" />
+              <div className="h-px bg-white/20 grow" />
             </div>
 
             {/* Form Fields */}
@@ -405,7 +406,7 @@ export default function TestimonialsBookingSection() {
                   <Send className="w-4 h-4 text-slate-950" />
                 </button>
 
-                <p className="text-xs text-blue-100 leading-tight max-w-[200px] text-center sm:text-left font-medium flex items-center gap-2">
+                <p className="text-xs text-blue-100 leading-tight max-w-50 text-center sm:text-left font-medium flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-amber-300 shrink-0 hidden sm:block" />
                   <span>
                     Our customer support team will contact you within 24 hours.

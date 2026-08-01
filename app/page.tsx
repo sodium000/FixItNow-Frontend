@@ -1,6 +1,7 @@
 import HeroBanner from "@/components/Banner/banner";
 import TestimonialsBookingSection from "@/components/BookingSection/testimonialsBookingSection";
 import EmergencyHeroSection from "@/components/Emergency/Emergency";
+import FaqSection from "@/components/FAQ_Component/faqSection";
 import RepairProcessSection from "@/components/repairProcess/repairProcess";
 import ServicesGrid from "@/components/serviceSection/ServicesGrid";
 import PricingSection from "@/components/subscription/paymentSubscripption";
@@ -46,6 +47,7 @@ export default function Home() {
         <PricingSection></PricingSection>
         <EmergencyHeroSection></EmergencyHeroSection>
         <TestimonialsBookingSection></TestimonialsBookingSection>
+        <FaqSection></FaqSection>
       </div>
     </div>
   );

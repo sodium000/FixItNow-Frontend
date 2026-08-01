@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import * as React from "react";
@@ -165,7 +166,7 @@ export default function EmergencyHeroSection() {
         className="relative min-h-[92vh] pt-20 bg-transparent text-foreground font-sans overflow-hidden selection:bg-primary/20 selection:text-primary"
       >
         {/* SECTION WRAPPER */}
-        <div className="relative z-10 max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* =========================================================================
                 LEFT COLUMN: HEADER, FEATURES & CTAS (7 Columns)
