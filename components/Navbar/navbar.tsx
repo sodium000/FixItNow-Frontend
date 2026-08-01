@@ -32,19 +32,18 @@ interface NavItem {
 
 const NAV_ITEMS: readonly NavItem[] = [
   {
-    label: "Services",
-    href: "#services",
+    label: "Home",
+    href: "/",
     description: "Browse verified home care experts",
   },
   {
-    label: "Professionals",
-    href: "#professionals",
-    badge: "Top Rated",
+    label: "About Us",
+    href: "/about",
     description: "Background-checked specialists",
   },
   {
-    label: "How it Works",
-    href: "#how-it-works",
+    label: "Services",
+    href: "/services",
     description: "Transparent, step-by-step booking",
   },
   {
@@ -53,9 +52,15 @@ const NAV_ITEMS: readonly NavItem[] = [
     description: "Upfront quotes with no surprises",
   },
   {
-    label: "Become a Provider",
-    href: "#become-provider",
-    badge: "Earn",
+    label: "Location",
+    href: "/",
+    badge: "Map",
+    description: "Join our network of skilled pros",
+  },
+  {
+    label: "Me",
+    href: "/",
+    badge: "Profile",
     description: "Join our network of skilled pros",
   },
 ] as const;

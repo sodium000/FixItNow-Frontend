@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import * as React from "react";
@@ -134,7 +135,7 @@ export default function FaqSection() {
         ?
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+      <div className="relative z-10 max-w-4xl mx-auto mb-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
         {/* =========================================================================
             HEADER CONTENT
            ========================================================================= */}
@@ -222,7 +223,7 @@ export default function FaqSection() {
         </div>
 
         {/* Decorative Sparkle Accent */}
-        <div className="mt-12 flex items-center gap-2 text-xs text-slate-400 font-medium bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-full">
+        <div className="mt-5 flex items-center gap-2 text-xs text-slate-400 font-medium bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-full">
           <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
           <span>Have more questions? Our support team is available 24/7.</span>
         </div>

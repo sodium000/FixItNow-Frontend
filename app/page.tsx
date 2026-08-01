@@ -6,6 +6,7 @@ import RepairProcessSection from "@/components/repairProcess/repairProcess";
 import ServicesGrid from "@/components/serviceSection/ServicesGrid";
 import PricingSection from "@/components/subscription/paymentSubscripption";
 import WhyUsSection from "@/components/WhyusSection/whyussection";
+import FooterSection from "@/components/Footer/FooterSection";
 
 
 
@@ -48,6 +49,7 @@ export default function Home() {
         <EmergencyHeroSection></EmergencyHeroSection>
         <TestimonialsBookingSection></TestimonialsBookingSection>
         <FaqSection></FaqSection>
+        <FooterSection></FooterSection>
       </div>
     </div>
   );
