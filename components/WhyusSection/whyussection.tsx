@@ -212,7 +212,7 @@ export default function WhyUsSection() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[92vh] pt-20 pb-16 lg:pt-10 lg:pb-24 overflow-hidden bg-transparent flex items-center"
+      className="relative min-h-[92vh] pt-10 pb-16 lg:pt-10 lg:pb-24 overflow-hidden bg-transparent flex items-center"
     >
       {/* =========================================================================
           SECTION CONTENT
@@ -291,7 +291,10 @@ export default function WhyUsSection() {
               >
                 <div className="space-y-4">
                   <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-                    {React.createElement(feature.icon, { size: 24 })}
+                    <span className="material-symbols-outlined text-2xl">
+                      <feature.icon className="w-6 h-6" />
+                    </span>
+
                   </div>
 
                   <div>

@@ -202,13 +202,13 @@ export default function RepairProcessSection() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-screen bg-transparent text-foreground font-sans overflow-hidden selection:bg-primary/20 selection:text-primary"
+      className="relative min-h-[92vh] bg-transparent text-foreground font-sans overflow-hidden selection:bg-primary/20 selection:text-primary"
     >
 
       {/* =========================================================================
           SECTION CONTENT
          ========================================================================= */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
         {/* HEADER SECTION */}
         <div
           ref={headerRef}

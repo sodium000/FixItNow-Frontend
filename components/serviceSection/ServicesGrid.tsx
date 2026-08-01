@@ -102,12 +102,12 @@ export default function ServicesGrid() {
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen bg-transparent text-foreground font-sans overflow-hidden selection:bg-primary/20 selection:text-primary"
+      className="relative min-h-[92vh] bg-transparent text-foreground font-sans overflow-hidden selection:bg-primary/20 selection:text-primary"
     >
       {/* =========================================================================
           MAIN CANVAS CONTENT
          ========================================================================= */}
-      <main className="relative z-10 pt-20 pb-32 max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="relative z-10 pt-10 pb-32 max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
         {/* HERO BANNER SECTION */}
         <section
           ref={heroRef}

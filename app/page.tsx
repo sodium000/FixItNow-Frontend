@@ -1,6 +1,9 @@
 import HeroBanner from "@/components/Banner/banner";
+import TestimonialsBookingSection from "@/components/BookingSection/testimonialsBookingSection";
+import EmergencyHeroSection from "@/components/Emergency/Emergency";
 import RepairProcessSection from "@/components/repairProcess/repairProcess";
 import ServicesGrid from "@/components/serviceSection/ServicesGrid";
+import PricingSection from "@/components/subscription/paymentSubscripption";
 import WhyUsSection from "@/components/WhyusSection/whyussection";
 
 
@@ -9,7 +12,7 @@ import WhyUsSection from "@/components/WhyusSection/whyussection";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background text-foreground selection:bg-primary/20 selection:text-primary">
+    <div className="relative min-h-[92vh] overflow-hidden bg-background text-foreground selection:bg-primary/20 selection:text-primary">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))]"
@@ -40,6 +43,9 @@ export default function Home() {
         <ServicesGrid />
         <WhyUsSection></WhyUsSection>
         <RepairProcessSection></RepairProcessSection>
+        <PricingSection></PricingSection>
+        <EmergencyHeroSection></EmergencyHeroSection>
+        <TestimonialsBookingSection></TestimonialsBookingSection>
       </div>
     </div>
   );
