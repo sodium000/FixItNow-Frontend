@@ -58,10 +58,10 @@ const NAV_ITEMS: readonly NavItem[] = [
     description: "Join our network of skilled pros",
   },
   {
-    label: "Me",
-    href: "/",
-    badge: "Profile",
-    description: "Join our network of skilled pros",
+    label: "Dashboard",
+    href: "/dashboard",
+    badge: "New",
+    description: "Manage your profile and bookings",
   },
 ] as const;
 
