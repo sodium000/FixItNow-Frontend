@@ -4,6 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ShieldCheck, Zap, Wrench, Banknote, type LucideIcon } from "lucide-react";
 
 // Register ScrollTrigger plugin
 if (typeof window !== "undefined") {
@@ -18,7 +19,7 @@ interface FeatureItem {
   id: string;
   title: string;
   description: string;
-  icon: string;
+  icon: LucideIcon;
 }
 
 const TRUST_FEATURES: readonly FeatureItem[] = [
@@ -27,28 +28,28 @@ const TRUST_FEATURES: readonly FeatureItem[] = [
     title: "Certified Experts",
     description:
       "Skilled technicians with verified background checks & HVAC certifications.",
-    icon: "verified",
+    icon: ShieldCheck,
   },
   {
     id: "quick-response",
     title: "Quick Response",
     description:
       "Fast doorstep service delivered within a few hours of booking.",
-    icon: "bolt",
+    icon: Zap,
   },
   {
     id: "tools",
     title: "Advanced Tools",
     description:
       "Modern diagnostic equipment ensures accurate and lasting repairs.",
-    icon: "handyman",
+    icon: Wrench,
   },
   {
     id: "pricing",
     title: "Affordable Pricing",
     description:
       "Transparent, upfront pricing with guaranteed zero hidden charges.",
-    icon: "payments",
+    icon: Banknote,
   },
 ];
 
@@ -289,10 +290,8 @@ export default function WhyUsSection() {
                 style={{ transformStyle: "preserve-3d" }}
               >
                 <div className="space-y-4">
-                  <div className="w-40 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
-                    <span className="material-symbols-outlined text-2xl">
-                      {feature.icon}
-                    </span>
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                    {React.createElement(feature.icon, { size: 24 })}
                   </div>
 
                   <div>
