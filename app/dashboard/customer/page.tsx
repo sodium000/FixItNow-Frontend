@@ -27,6 +27,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import { CustomerBookingChart } from "@/components/dashboard/CustomerBookingChart";
+
 export default function CustomerDashboardPage() {
   const [user] = React.useState(CURRENT_USER);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -167,19 +169,32 @@ export default function CustomerDashboardPage() {
           />
         </div>
 
-        {/* Bookings */}
-        <section id="bookings" className="space-y-4">
-          <div>
-            <h2 className="text-lg font-bold text-foreground">My Bookings</h2>
-            <p className="text-sm text-muted-foreground">
-              Track your service requests and appointment history.
-            </p>
+        {/* Bookings Section with Modern Chart and Table */}
+        <section id="bookings" className="space-y-6">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-foreground">
+                My Bookings
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Detailed history of your service requests, spending, and technician assignments.
+              </p>
+            </div>
           </div>
-          <BookingsTable
-            bookings={customerBookings}
-            showCustomer={false}
-            emptyMessage="You haven't booked any services yet."
-          />
+
+          {/* Customer Spending & Volume Chart */}
+          <CustomerBookingChart bookings={customerBookings} />
+
+          {/* Best Modern Bookings Table */}
+          <div className="space-y-3">
+            <h3 className="text-base font-bold text-foreground">Service History Table</h3>
+            <BookingsTable
+              bookings={customerBookings}
+              showCustomer={false}
+              showTechnician={true}
+              emptyMessage="You haven't booked any services yet."
+            />
+          </div>
         </section>
       </div>
 

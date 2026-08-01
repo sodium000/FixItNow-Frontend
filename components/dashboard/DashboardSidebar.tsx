@@ -35,12 +35,6 @@ const NAV_LINKS: NavLink[] = [
     roles: ["CUSTOMER"],
   },
   {
-    label: "My Bookings",
-    href: "/dashboard/customer#bookings",
-    icon: CalendarCheck2,
-    roles: ["CUSTOMER"],
-  },
-  {
     label: "Technician Panel",
     href: "/dashboard/technician",
     icon: Wrench,
@@ -58,6 +52,7 @@ interface DashboardSidebarProps {
   role: Role;
   userName: string;
   userEmail: string;
+  userPhotoUrl?: string;
   onRoleChange?: (role: Role) => void;
 }
 
@@ -65,6 +60,7 @@ export function DashboardSidebar({
   role,
   userName,
   userEmail,
+  userPhotoUrl,
   onRoleChange,
 }: DashboardSidebarProps) {
   const pathname = usePathname();
@@ -140,12 +136,22 @@ export function DashboardSidebar({
       )}
 
       <div className="border-t border-border p-4">
-        <div className="mb-3 rounded-xl bg-muted/50 p-3">
-          <p className="truncate text-sm font-semibold text-foreground">{userName}</p>
-          <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
-          <span className="mt-1.5 inline-flex rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase text-primary">
-            {role}
-          </span>
+        <div className="mb-3 flex items-center gap-3 rounded-xl bg-muted/50 p-3">
+          <img
+            src={
+              userPhotoUrl ||
+              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop"
+            }
+            alt={userName}
+            className="h-10 w-10 shrink-0 rounded-full border border-border object-cover"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-foreground">{userName}</p>
+            <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
+            <span className="mt-1 inline-flex rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase text-primary">
+              {role}
+            </span>
+          </div>
         </div>
         <Link
           href="/"

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import type { Role } from "@/lib/types";
-import { CURRENT_USER } from "@/lib/mock-data";
+import { CURRENT_USER, CURRENT_TECHNICIAN, MOCK_USERS } from "@/lib/mock-data";
 import { DashboardSidebar } from "./DashboardSidebar";
 
 interface DashboardShellProps {
@@ -14,6 +14,15 @@ interface DashboardShellProps {
 export function DashboardShell({ children, defaultRole = "CUSTOMER" }: DashboardShellProps) {
   const router = useRouter();
   const [role, setRole] = React.useState<Role>(defaultRole);
+
+  const adminUser = MOCK_USERS.find((u) => u.role === "ADMIN");
+
+  const activeUser =
+    role === "ADMIN"
+      ? { name: adminUser?.name ?? "Admin User", email: adminUser?.email ?? "admin@fixitnow.com", photoUrl: adminUser?.photoUrl }
+      : role === "TECHNICIAN"
+      ? { name: CURRENT_TECHNICIAN.user?.name ?? "Tanvir Ahmed", email: CURRENT_TECHNICIAN.user?.email ?? "tanvir@example.com", photoUrl: CURRENT_TECHNICIAN.user?.photoUrl }
+      : { name: CURRENT_USER.name, email: CURRENT_USER.email, photoUrl: CURRENT_USER.photoUrl };
 
   const handleRoleChange = (newRole: Role) => {
     setRole(newRole);
@@ -26,8 +35,9 @@ export function DashboardShell({ children, defaultRole = "CUSTOMER" }: Dashboard
     <div className="fixed inset-0 z-[60] flex bg-background">
       <DashboardSidebar
         role={role}
-        userName={CURRENT_USER.name}
-        userEmail={CURRENT_USER.email}
+        userName={activeUser.name}
+        userEmail={activeUser.email}
+        userPhotoUrl={activeUser.photoUrl}
         onRoleChange={handleRoleChange}
       />
       <main className="flex-1 overflow-y-auto">

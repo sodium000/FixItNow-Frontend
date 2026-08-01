@@ -26,6 +26,8 @@ export const MOCK_USERS: User[] = [
     phone: "+880 1700-000002",
     role: "CUSTOMER",
     isActive: true,
+    photoUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80",
     createdAt: "2025-12-01T10:00:00.000Z",
     updatedAt: "2026-04-20T09:00:00.000Z",
   },
@@ -36,6 +38,8 @@ export const MOCK_USERS: User[] = [
     phone: "+880 1700-000003",
     role: "CUSTOMER",
     isActive: true,
+    photoUrl:
+      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&auto=format&fit=crop&q=80",
     createdAt: "2026-01-10T12:00:00.000Z",
     updatedAt: "2026-05-01T11:00:00.000Z",
   },
@@ -46,6 +50,8 @@ export const MOCK_USERS: User[] = [
     phone: "+880 1700-000099",
     role: "ADMIN",
     isActive: true,
+    photoUrl:
+      "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=300&auto=format&fit=crop&q=80",
     createdAt: "2025-06-01T00:00:00.000Z",
     updatedAt: "2026-05-10T00:00:00.000Z",
   },
@@ -62,6 +68,8 @@ export const MOCK_TECHNICIANS: TechnicianProfile[] = [
       phone: "+880 1700-100001",
       role: "TECHNICIAN",
       isActive: true,
+      photoUrl:
+        "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&auto=format&fit=crop&q=80",
       createdAt: "2025-08-01T00:00:00.000Z",
       updatedAt: "2026-05-10T00:00:00.000Z",
     },
@@ -86,6 +94,8 @@ export const MOCK_TECHNICIANS: TechnicianProfile[] = [
       phone: "+880 1700-100002",
       role: "TECHNICIAN",
       isActive: true,
+      photoUrl:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80",
       createdAt: "2025-09-15T00:00:00.000Z",
       updatedAt: "2026-05-10T00:00:00.000Z",
     },
@@ -110,6 +120,8 @@ export const MOCK_TECHNICIANS: TechnicianProfile[] = [
       phone: "+880 1700-100003",
       role: "TECHNICIAN",
       isActive: true,
+      photoUrl:
+        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80",
       createdAt: "2026-01-20T00:00:00.000Z",
       updatedAt: "2026-05-10T00:00:00.000Z",
     },
