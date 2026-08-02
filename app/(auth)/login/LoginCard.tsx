@@ -9,9 +9,29 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { loginUser } from "./loginfuntion";
+import { useMutation } from "@tanstack/react-query";
+
+export interface LoginUserType {
+  email: string;
+  password: string;
+}
 
 export default function LoginCard() {
   const [showPassword, setShowPassword] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: loginUser,
+  });
+
+  console.log(mutation);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginUserType>();
 
   return (
     <Card className="mx-auto w-full max-w-4xl overflow-hidden rounded-[40px] shadow-2xl border-0">
@@ -238,19 +258,38 @@ export default function LoginCard() {
               </p>
             </div>
 
-            <form className="space-y-4">
+            <form
+              onSubmit={handleSubmit((data) => {
+                mutation.mutate(data);
+              })}
+              className="space-y-4"
+            >
               <Input
+                {...register("email", {
+                  required: "Email is required",
+                })}
                 placeholder="Email"
                 type="email"
                 className="h-12 rounded-xl"
               />
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email.message}</p>
+              )}
 
               <div className="relative">
                 <Input
+                  {...register("password", {
+                    required: "Password is required",
+                  })}
                   placeholder="Password"
                   type={showPassword ? "text" : "password"}
                   className="h-12 rounded-xl pr-12"
                 />
+                {errors.password && (
+                  <p className="text-sm text-red-500">
+                    {errors.password.message}
+                  </p>
+                )}
 
                 <button
                   type="button"
@@ -270,8 +309,12 @@ export default function LoginCard() {
                 </button>
               </div>
 
-              <Button type="submit" className="h-12 w-full rounded-xl">
-                Sign In
+              <Button
+                disabled={mutation.isPending}
+                type="submit"
+                className="h-12 w-full rounded-xl"
+              >
+                {mutation.isPending ? "Signing In..." : "Sign In"}
               </Button>
             </form>
 
