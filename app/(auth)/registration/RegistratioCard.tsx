@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -11,6 +10,11 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { RegistrationHandle } from "../FuntionalWork/Registration";
+import { RegUserType } from "../FuntionalWork/Typefile/Type";
+import toast from "react-hot-toast";
+import { redirect } from "next/navigation";
 
 export default function RegistrationCard() {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,19 +22,58 @@ export default function RegistrationCard() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<RegUserType>();
+
+  const password = watch("password");
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const res = await fetch(
+      `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      const imageUrl = data.data.url;
+      setValue("photo", imageUrl); // manually push the File into react-hook-form
+    }
   };
+
   const clearPhoto = () => {
     setPhotoFile(null);
     setPhotoPreview(null);
+    setValue("photo", null as any); // clear the value in react-hook-form too
+  };
+
+  const onSubmit = async (data: RegUserType) => {
+    const result = await RegistrationHandle(data);
+    if (result?.success) {
+      toast.success("Registration successful! Please login");
+      redirect("/login");
+    } else {
+      toast.error(result?.error || "Registration failed. Please try again.");
+    }
   };
 
   return (
-    <Card className="mx-auto  w-full max-w-4xl overflow-hidden rounded-[40px] shadow-2xl border-0 ">
+    <Card className="mx-auto mt-20 w-full max-w-4xl overflow-hidden rounded-[40px] shadow-2xl border-0 ">
       <div className="flex w-full gap-4 flex-col md:flex-row">
         {/* Hero */}
         <div className="w-full md:w-1/2">
@@ -167,7 +210,7 @@ export default function RegistrationCard() {
               </p>
             </div>
 
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-1.5">
                 <Label
                   htmlFor="name"
@@ -176,11 +219,17 @@ export default function RegistrationCard() {
                   Full Name
                 </Label>
                 <Input
+                  {...register("name", { required: true })}
                   id="name"
                   placeholder="Full Name"
                   type="text"
                   className="h-12 rounded-xl"
                 />
+                {errors.name ? (
+                  <p className="text-xs text-red-500">Name is required</p>
+                ) : (
+                  ""
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -191,11 +240,17 @@ export default function RegistrationCard() {
                   Email
                 </Label>
                 <Input
+                  {...register("email", { required: true })}
                   id="email"
                   placeholder="Email"
                   type="email"
                   className="h-12 rounded-xl"
                 />
+                {errors.email ? (
+                  <p className="text-xs text-red-500">Email is required</p>
+                ) : (
+                  ""
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -206,11 +261,17 @@ export default function RegistrationCard() {
                   Phone Number
                 </Label>
                 <Input
-                  id="phone"
+                  {...register("number", { required: true })}
+                  id="number"
                   placeholder="Phone Number"
                   type="tel"
                   className="h-12 rounded-xl"
                 />
+                {errors.number ? (
+                  <p className="text-xs text-red-500">Number is required</p>
+                ) : (
+                  ""
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -239,13 +300,15 @@ export default function RegistrationCard() {
                 ) : (
                   <div className="flex h-12 w-full items-center justify-between gap-2 rounded-xl border border-input px-3">
                     <div className="flex items-center gap-2 overflow-hidden">
-                      <Image 
+                      <Image
                         src={photoPreview}
                         alt="Photo preview"
                         className="h-8 w-8 shrink-0 rounded-full object-cover"
+                        width={50}
+                        height={50}
                       />
                       <span className="truncate text-sm text-gray-600">
-                        {photoFile?.name }
+                        {photoFile?.name}
                       </span>
                     </div>
                     <button
@@ -268,11 +331,25 @@ export default function RegistrationCard() {
                 </Label>
                 <div className="relative">
                   <Input
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 6,
+                        message: "Password must be at least 6 characters",
+                      },
+                    })}
                     id="password"
                     placeholder="Password"
                     type={showPassword ? "text" : "password"}
                     className="h-12 rounded-xl pr-12"
                   />
+                  {errors.password ? (
+                    <p className="text-xs text-red-500">
+                      {errors.password.message}
+                    </p>
+                  ) : (
+                    ""
+                  )}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -292,11 +369,17 @@ export default function RegistrationCard() {
                 </Label>
                 <div className="relative">
                   <Input
+                    {...register("confirmPassword", {
+                      required: "Confirm Password is required",
+                      validate: (value) =>
+                        value === password || "Passwords do not match",
+                    })}
                     id="confirmPassword"
                     placeholder="Confirm Password"
                     type={showConfirmPassword ? "text" : "password"}
                     className="h-12 rounded-xl pr-12"
                   />
+
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -309,6 +392,13 @@ export default function RegistrationCard() {
                     )}
                   </button>
                 </div>
+                {errors.confirmPassword ? (
+                  <p className="text-xs text-red-500">
+                    {errors.confirmPassword.message}
+                  </p>
+                ) : (
+                  ""
+                )}
               </div>
 
               <Button type="submit" className="h-12 w-full rounded-xl">
