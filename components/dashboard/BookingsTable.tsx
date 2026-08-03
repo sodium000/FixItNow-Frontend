@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Search, Calendar, MapPin, Wrench, User as UserIcon } from "lucide-react";
+import { Search, Calendar, MapPin, Wrench, Star } from "lucide-react";
 import type { Booking, BookingStatus } from "@/lib/types";
 import { formatCurrency, formatDateTime } from "@/lib/mock-data";
 import { StatusBadge } from "./StatusBadge";
@@ -11,6 +11,10 @@ interface BookingsTableProps {
   showCustomer?: boolean;
   showTechnician?: boolean;
   emptyMessage?: string;
+  /** Called when the user clicks "Leave Review" on a completed booking */
+  onReview?: (bookingId: string) => void;
+  /** Set of bookingIds that already have a review submitted */
+  reviewedIds?: Set<string>;
 }
 
 export function BookingsTable({
@@ -18,6 +22,8 @@ export function BookingsTable({
   showCustomer = true,
   showTechnician = true,
   emptyMessage = "No bookings found.",
+  onReview,
+  reviewedIds = new Set(),
 }: BookingsTableProps) {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedStatus, setSelectedStatus] = React.useState<BookingStatus | "ALL">("ALL");
@@ -109,6 +115,7 @@ export function BookingsTable({
                 <th className="px-5 py-3.5 font-bold">Location</th>
                 <th className="px-5 py-3.5 font-bold">Amount</th>
                 <th className="px-5 py-3.5 font-bold">Status</th>
+                {onReview && <th className="px-5 py-3.5 font-bold">Review</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -203,6 +210,31 @@ export function BookingsTable({
                   <td className="px-5 py-4">
                     <StatusBadge status={booking.status} />
                   </td>
+
+                  {/* Review Action */}
+                  {onReview && (
+                    <td className="px-5 py-4">
+                      {booking.status === "COMPLETED" ? (
+                        reviewedIds.has(booking.id) ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-full">
+                            <Star className="w-3 h-3 fill-amber-500" />
+                            Reviewed
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => onReview(booking.id)}
+                            className="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 hover:bg-primary hover:text-primary-foreground px-2.5 py-1.5 rounded-full border border-primary/20 transition-all"
+                          >
+                            <Star className="w-3 h-3" />
+                            Leave Review
+                          </button>
+                        )
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground">—</span>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

@@ -5,4 +5,10 @@ export type RegUserType = {
   photo?: string;
   number: string;
   confirmPassword: string;
+  role: "CUSTOMER" | "TECHNICIAN";
+  // Technician-only fields (only required when role === "TECHNICIAN")
+  experienceYrs?: number;
+  hourlyRate?: number;
+  city?: string;
+  address?: string;
 };

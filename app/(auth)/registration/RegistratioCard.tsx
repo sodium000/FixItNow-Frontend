@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, UploadCloud, X } from "lucide-react";
+import { Eye, EyeOff, UploadCloud, X, Wrench, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -28,9 +28,15 @@ export default function RegistrationCard() {
     setValue,
     watch,
     formState: { errors },
-  } = useForm<RegUserType>();
+  } = useForm<RegUserType>({
+    defaultValues: {
+      role: "CUSTOMER",
+    },
+  });
 
   const password = watch("password");
+  const selectedRole = watch("role");
+  const isTechnician = selectedRole === "TECHNICIAN";
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -52,14 +58,14 @@ export default function RegistrationCard() {
 
     if (data.success) {
       const imageUrl = data.data.url;
-      setValue("photo", imageUrl); // manually push the File into react-hook-form
+      setValue("photo", imageUrl);
     }
   };
 
   const clearPhoto = () => {
     setPhotoFile(null);
     setPhotoPreview(null);
-    setValue("photo", null as any); // clear the value in react-hook-form too
+    setValue("photo", null as any);
   };
 
   const onSubmit = async (data: RegUserType) => {
@@ -73,7 +79,7 @@ export default function RegistrationCard() {
   };
 
   return (
-    <Card className="mx-auto mt-20 w-full max-w-4xl overflow-hidden rounded-[40px] shadow-2xl border-0 ">
+    <Card className="mx-auto mt-20 w-full max-w-4xl overflow-hidden rounded-[40px] shadow-2xl border-0">
       <div className="flex w-full gap-4 flex-col md:flex-row">
         {/* Hero */}
         <div className="w-full md:w-1/2">
@@ -183,27 +189,27 @@ export default function RegistrationCard() {
             </div>
 
             <h1 className="text-xl sm:text-2xl font-bold text-white">
-              Join and Take Control
+              Join FixItNow
             </h1>
 
             <p className="mt-2 text-xs text-gray-400">
-              Create your account to start managing your money with Quicken.
+              Register as a Customer to book services, or as a Technician to offer your skills.
             </p>
           </section>
         </div>
 
         {/* Form */}
-        <div className="w-full md:w-1/2">
-          <section className="p-6 sm:p-2">
+        <div className="w-full md:w-1/2 overflow-y-auto max-h-[90vh]">
+          <section className="p-6 sm:p-6">
             {/* Logo */}
-            <div className="mb-6 flex items-center gap-2">
+            <div className="mb-4 flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black">
                 <div className="h-2 w-4 rounded-full border-b-2 border-white" />
               </div>
-              <span className="text-xl font-bold">.Finance</span>
+              <span className="text-xl font-bold">FixItNow</span>
             </div>
 
-            <div className="mb-6">
+            <div className="mb-4">
               <h2 className="text-2xl font-extrabold">Create Account</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Fill in your details to get started
@@ -211,11 +217,44 @@ export default function RegistrationCard() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+              {/* ── Role Selector ── */}
               <div className="space-y-1.5">
-                <Label
-                  htmlFor="name"
-                  className="text-xs font-semibold text-gray-500"
-                >
+                <Label className="text-xs font-semibold text-gray-500">
+                  Register As
+                </Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setValue("role", "CUSTOMER")}
+                    className={`flex items-center justify-center gap-2 rounded-xl border-2 py-3 text-sm font-semibold transition-all ${
+                      !isTechnician
+                        ? "border-black bg-black text-white"
+                        : "border-border bg-transparent text-muted-foreground hover:border-black/40"
+                    }`}
+                  >
+                    <User size={16} />
+                    Customer
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setValue("role", "TECHNICIAN")}
+                    className={`flex items-center justify-center gap-2 rounded-xl border-2 py-3 text-sm font-semibold transition-all ${
+                      isTechnician
+                        ? "border-black bg-black text-white"
+                        : "border-border bg-transparent text-muted-foreground hover:border-black/40"
+                    }`}
+                  >
+                    <Wrench size={16} />
+                    Technician
+                  </button>
+                </div>
+                <input type="hidden" {...register("role")} />
+              </div>
+
+              {/* Full Name */}
+              <div className="space-y-1.5">
+                <Label htmlFor="name" className="text-xs font-semibold text-gray-500">
                   Full Name
                 </Label>
                 <Input
@@ -225,18 +264,14 @@ export default function RegistrationCard() {
                   type="text"
                   className="h-12 rounded-xl"
                 />
-                {errors.name ? (
+                {errors.name && (
                   <p className="text-xs text-red-500">Name is required</p>
-                ) : (
-                  ""
                 )}
               </div>
 
+              {/* Email */}
               <div className="space-y-1.5">
-                <Label
-                  htmlFor="email"
-                  className="text-xs font-semibold text-gray-500"
-                >
+                <Label htmlFor="email" className="text-xs font-semibold text-gray-500">
                   Email
                 </Label>
                 <Input
@@ -246,18 +281,14 @@ export default function RegistrationCard() {
                   type="email"
                   className="h-12 rounded-xl"
                 />
-                {errors.email ? (
+                {errors.email && (
                   <p className="text-xs text-red-500">Email is required</p>
-                ) : (
-                  ""
                 )}
               </div>
 
+              {/* Phone */}
               <div className="space-y-1.5">
-                <Label
-                  htmlFor="phone"
-                  className="text-xs font-semibold text-gray-500"
-                >
+                <Label htmlFor="number" className="text-xs font-semibold text-gray-500">
                   Phone Number
                 </Label>
                 <Input
@@ -267,21 +298,16 @@ export default function RegistrationCard() {
                   type="tel"
                   className="h-12 rounded-xl"
                 />
-                {errors.number ? (
+                {errors.number && (
                   <p className="text-xs text-red-500">Number is required</p>
-                ) : (
-                  ""
                 )}
               </div>
 
+              {/* Profile Photo */}
               <div className="space-y-1.5">
-                <Label
-                  htmlFor="photo"
-                  className="text-xs font-semibold text-gray-500"
-                >
+                <Label htmlFor="photo" className="text-xs font-semibold text-gray-500">
                   Profile Photo
                 </Label>
-
                 {!photoPreview ? (
                   <label
                     htmlFor="photo"
@@ -322,11 +348,99 @@ export default function RegistrationCard() {
                 )}
               </div>
 
+              {/* ── TECHNICIAN EXTRA FIELDS ── */}
+              {isTechnician && (
+                <div className="space-y-3 rounded-xl border border-dashed border-black/20 bg-muted/30 p-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Wrench size={12} />
+                    Technician Profile Details
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Experience */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="experienceYrs" className="text-xs font-semibold text-gray-500">
+                        Experience (yrs)
+                      </Label>
+                      <Input
+                        {...register("experienceYrs", {
+                          required: isTechnician,
+                          valueAsNumber: true,
+                          min: 0,
+                        })}
+                        id="experienceYrs"
+                        placeholder="e.g. 5"
+                        type="number"
+                        min={0}
+                        className="h-11 rounded-xl"
+                      />
+                      {errors.experienceYrs && (
+                        <p className="text-xs text-red-500">Required</p>
+                      )}
+                    </div>
+
+                    {/* Hourly Rate */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="hourlyRate" className="text-xs font-semibold text-gray-500">
+                        Hourly Rate (৳)
+                      </Label>
+                      <Input
+                        {...register("hourlyRate", {
+                          required: isTechnician,
+                          valueAsNumber: true,
+                          min: 0,
+                        })}
+                        id="hourlyRate"
+                        placeholder="e.g. 500"
+                        type="number"
+                        min={0}
+                        className="h-11 rounded-xl"
+                      />
+                      {errors.hourlyRate && (
+                        <p className="text-xs text-red-500">Required</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* City */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="city" className="text-xs font-semibold text-gray-500">
+                      City
+                    </Label>
+                    <Input
+                      {...register("city", { required: isTechnician })}
+                      id="city"
+                      placeholder="e.g. Dhaka"
+                      type="text"
+                      className="h-11 rounded-xl"
+                    />
+                    {errors.city && (
+                      <p className="text-xs text-red-500">City is required</p>
+                    )}
+                  </div>
+
+                  {/* Address */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="address" className="text-xs font-semibold text-gray-500">
+                      Service Area Address
+                    </Label>
+                    <Input
+                      {...register("address", { required: isTechnician })}
+                      id="address"
+                      placeholder="123 Main St, Area"
+                      type="text"
+                      className="h-11 rounded-xl"
+                    />
+                    {errors.address && (
+                      <p className="text-xs text-red-500">Address is required</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Password */}
               <div className="space-y-1.5">
-                <Label
-                  htmlFor="password"
-                  className="text-xs font-semibold text-gray-500"
-                >
+                <Label htmlFor="password" className="text-xs font-semibold text-gray-500">
                   Password
                 </Label>
                 <div className="relative">
@@ -343,28 +457,24 @@ export default function RegistrationCard() {
                     type={showPassword ? "text" : "password"}
                     className="h-12 rounded-xl pr-12"
                   />
-                  {errors.password ? (
+                  {errors.password && (
                     <p className="text-xs text-red-500">
                       {errors.password.message}
                     </p>
-                  ) : (
-                    ""
                   )}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    className="absolute right-3 top-3 text-gray-500"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
 
+              {/* Confirm Password */}
               <div className="space-y-1.5">
-                <Label
-                  htmlFor="confirmPassword"
-                  className="text-xs font-semibold text-gray-500"
-                >
+                <Label htmlFor="confirmPassword" className="text-xs font-semibold text-gray-500">
                   Confirm Password
                 </Label>
                 <div className="relative">
@@ -379,11 +489,10 @@ export default function RegistrationCard() {
                     type={showConfirmPassword ? "text" : "password"}
                     className="h-12 rounded-xl pr-12"
                   />
-
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    className="absolute right-3 top-3 text-gray-500"
                   >
                     {showConfirmPassword ? (
                       <EyeOff size={18} />
@@ -391,22 +500,20 @@ export default function RegistrationCard() {
                       <Eye size={18} />
                     )}
                   </button>
+                  {errors.confirmPassword && (
+                    <p className="text-xs text-red-500">
+                      {errors.confirmPassword.message}
+                    </p>
+                  )}
                 </div>
-                {errors.confirmPassword ? (
-                  <p className="text-xs text-red-500">
-                    {errors.confirmPassword.message}
-                  </p>
-                ) : (
-                  ""
-                )}
               </div>
 
               <Button type="submit" className="h-12 w-full rounded-xl">
-                Create Account
+                {isTechnician ? "Register as Technician" : "Create Account"}
               </Button>
             </form>
 
-            <div className="my-8 flex items-center gap-4">
+            <div className="my-6 flex items-center gap-4">
               <Separator className="flex-1" />
               <span className="text-[10px] uppercase tracking-widest text-gray-400">
                 or continue
@@ -438,9 +545,9 @@ export default function RegistrationCard() {
 
             <p className="mt-5 text-center text-xs text-muted-foreground">
               Already have an account?{" "}
-              <button className="font-bold text-black hover:underline">
-                <Link href="/login">Sign In</Link>
-              </button>
+              <Link href="/login" className="font-bold text-black hover:underline">
+                Sign In
+              </Link>
             </p>
           </section>
         </div>

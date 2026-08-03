@@ -17,6 +17,7 @@ import {
   LogIn,
   TrendingUp,
   Clock,
+  MessageSquare,
 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -26,9 +27,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CustomerBookingChart } from "@/components/dashboard/CustomerBookingChart";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getMyProfileAction, type UserProfile } from "@/lib/profileAction";
 import { getMyBookingsAction } from "@/app/booking/bookingAction";
+import { createReviewAction } from "@/app/review/reviewAction";
+import { becomeTechnicianAction } from "@/app/technician/technicianAction";
 import { useRouter } from "next/navigation";
 import type { Booking } from "@/lib/types";
 
@@ -45,14 +48,61 @@ function normalizeBooking(raw: any): Booking {
 
 export default function CustomerDashboardPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [successMessage, setSuccessMessage] = React.useState("");
+  const [techError, setTechError] = React.useState("");
+  const [isTechSubmitting, setIsTechSubmitting] = React.useState(false);
   const [techForm, setTechForm] = React.useState({
+    name: "",
+    phone: "",
     experienceYrs: 1,
-    hourlyRate: 25,
+    hourlyRate: 500,
     address: "",
     city: "Dhaka",
   });
+
+  // Review modal state
+  const [reviewBookingId, setReviewBookingId] = React.useState<string | null>(null);
+  const [reviewRating, setReviewRating] = React.useState(5);
+  const [reviewComment, setReviewComment] = React.useState("");
+  const [reviewError, setReviewError] = React.useState("");
+  const [isReviewSubmitting, setIsReviewSubmitting] = React.useState(false);
+  const [reviewedIds, setReviewedIds] = React.useState<Set<string>>(new Set());
+
+  const openReviewModal = (bookingId: string) => {
+    setReviewBookingId(bookingId);
+    setReviewRating(5);
+    setReviewComment("");
+    setReviewError("");
+  };
+
+  const closeReviewModal = () => {
+    setReviewBookingId(null);
+    setReviewError("");
+  };
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewBookingId) return;
+    setIsReviewSubmitting(true);
+    setReviewError("");
+    const res = await createReviewAction({
+      bookingId: reviewBookingId,
+      rating: reviewRating,
+      comment: reviewComment,
+    });
+    setIsReviewSubmitting(false);
+    if (res.success) {
+      setReviewedIds((prev) => new Set([...prev, reviewBookingId]));
+      closeReviewModal();
+      setSuccessMessage("Your review was submitted successfully! Thank you.");
+      setTimeout(() => setSuccessMessage(""), 5000);
+      queryClient.invalidateQueries({ queryKey: ["myBookings"] });
+    } else {
+      setReviewError(res.error || "Failed to submit review.");
+    }
+  };
 
   // Fetch real logged-in user from /api/auth/me
   const {
@@ -102,13 +152,29 @@ export default function CustomerDashboardPage() {
     .filter((b) => b.status === "COMPLETED" || b.status === "ACCEPTED")
     .reduce((sum, b) => sum + (b.totalAmount || 0), 0);
 
-  const handleBecomeTechnician = (e: React.FormEvent) => {
+  const handleBecomeTechnician = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsModalOpen(false);
-    setSuccessMessage(
-      "Technician application submitted! We'll review your profile shortly.",
-    );
-    setTimeout(() => setSuccessMessage(""), 5000);
+    setTechError("");
+    setIsTechSubmitting(true);
+    const res = await becomeTechnicianAction({
+      name: techForm.name || user?.name || "",
+      phone: techForm.phone || user?.phone || "",
+      experienceYrs: techForm.experienceYrs,
+      hourlyRate: techForm.hourlyRate,
+      address: techForm.address,
+      city: techForm.city,
+    });
+    setIsTechSubmitting(false);
+    if (res.success) {
+      setIsModalOpen(false);
+      setSuccessMessage(
+        "🎉 Technician profile created! You are now registered as a technician.",
+      );
+      setTimeout(() => setSuccessMessage(""), 7000);
+      queryClient.invalidateQueries({ queryKey: ["myProfile"] });
+    } else {
+      setTechError(res.error || "Failed to create technician profile.");
+    }
   };
 
   const isLoading = isProfileLoading;
@@ -249,15 +315,16 @@ export default function CustomerDashboardPage() {
               </div>
 
               {!user.technicianProfile && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsModalOpen(true)}
-                  className="gap-1.5"
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Become a Technician
-                </Button>
+                <Link href="/registration">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Register as Technician
+                  </Button>
+                </Link>
               )}
             </div>
           </div>
@@ -328,6 +395,8 @@ export default function CustomerDashboardPage() {
                   showCustomer={false}
                   showTechnician={true}
                   emptyMessage="You haven't booked any services yet. Book your first service!"
+                  onReview={openReviewModal}
+                  reviewedIds={reviewedIds}
                 />
               </div>
             </>
@@ -335,77 +404,269 @@ export default function CustomerDashboardPage() {
         </section>
       </div>
 
-      {/* Become Technician Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-foreground">
-                Become a Technician
-              </h3>
+      {/* ── Review Modal ── */}
+      {reviewBookingId && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">Leave a Review</h3>
+                  <p className="text-[11px] text-muted-foreground">Rate your completed service</p>
+                </div>
+              </div>
               <button
                 type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="rounded-lg p-1 text-muted-foreground hover:bg-muted"
+                onClick={closeReviewModal}
+                className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleReviewSubmit} className="space-y-4">
+              {/* Star Rating Picker */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider">
+                  Your Rating
+                </label>
+                <div className="flex items-center gap-1.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      className="transition-transform hover:scale-110 active:scale-95"
+                    >
+                      <Star
+                        className={`w-8 h-8 transition-colors ${
+                          star <= reviewRating
+                            ? "fill-amber-400 text-amber-400"
+                            : "fill-muted text-muted-foreground/40"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  <span className="ml-2 text-sm font-bold text-foreground">
+                    {reviewRating} / 5
+                  </span>
+                </div>
+              </div>
+
+              {/* Comment */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider">
+                  Your Comment
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="e.g. Great work, arrived on time and fixed everything perfectly!"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-xs text-foreground outline-none focus:border-primary resize-none"
+                />
+              </div>
+
+              {/* Error */}
+              {reviewError && (
+                <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  {reviewError}
+                </div>
+              )}
+
+              {/* Booking ID info */}
+              <p className="text-[10px] text-muted-foreground">
+                Reviewing booking ID: <span className="font-mono font-semibold">{reviewBookingId}</span>
+              </p>
+
+              {/* Submit */}
+              <div className="flex gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={closeReviewModal}
+                  disabled={isReviewSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 gap-2"
+                  disabled={isReviewSubmitting || !reviewComment.trim()}
+                >
+                  {isReviewSubmitting ? (
+                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Submitting...</>
+                  ) : (
+                    <><Star className="w-3.5 h-3.5" /> Submit Review</>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Become Technician Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-5">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">
+                    Become a Technician
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground">
+                    Register your technician profile
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => { setIsModalOpen(false); setTechError(""); }}
+                className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleBecomeTechnician} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="experienceYrs">Years of Experience</Label>
+
+            <form onSubmit={handleBecomeTechnician} className="space-y-3">
+              {/* Name */}
+              <div className="space-y-1.5">
+                <Label htmlFor="techName">Full Name</Label>
                 <Input
-                  id="experienceYrs"
-                  type="number"
-                  min={0}
-                  value={techForm.experienceYrs}
+                  id="techName"
+                  required
+                  placeholder={user?.name || "John Doe"}
+                  value={techForm.name || user?.name || ""}
                   onChange={(e) =>
-                    setTechForm((p) => ({
-                      ...p,
-                      experienceYrs: Number(e.target.value),
-                    }))
+                    setTechForm((p) => ({ ...p, name: e.target.value }))
                   }
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="hourlyRate">Hourly Rate (৳)</Label>
+
+              {/* Phone */}
+              <div className="space-y-1.5">
+                <Label htmlFor="techPhone">Phone Number</Label>
                 <Input
-                  id="hourlyRate"
-                  type="number"
-                  min={0}
-                  value={techForm.hourlyRate}
+                  id="techPhone"
+                  type="tel"
+                  required
+                  placeholder={user?.phone || "01XXXXXXXXX"}
+                  value={techForm.phone || user?.phone || ""}
                   onChange={(e) =>
-                    setTechForm((p) => ({
-                      ...p,
-                      hourlyRate: Number(e.target.value),
-                    }))
+                    setTechForm((p) => ({ ...p, phone: e.target.value }))
                   }
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
+
+              <div className="grid grid-cols-2 gap-3">
+                {/* Experience */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="experienceYrs">Experience (yrs)</Label>
+                  <Input
+                    id="experienceYrs"
+                    type="number"
+                    min={0}
+                    required
+                    value={techForm.experienceYrs}
+                    onChange={(e) =>
+                      setTechForm((p) => ({
+                        ...p,
+                        experienceYrs: Number(e.target.value),
+                      }))
+                    }
+                  />
+                </div>
+
+                {/* Hourly Rate */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="hourlyRate">Hourly Rate (৳)</Label>
+                  <Input
+                    id="hourlyRate"
+                    type="number"
+                    min={0}
+                    required
+                    value={techForm.hourlyRate}
+                    onChange={(e) =>
+                      setTechForm((p) => ({
+                        ...p,
+                        hourlyRate: Number(e.target.value),
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Address */}
+              <div className="space-y-1.5">
+                <Label htmlFor="techAddress">Service Area Address</Label>
                 <Input
-                  id="address"
+                  id="techAddress"
+                  required
                   value={techForm.address}
                   onChange={(e) =>
                     setTechForm((p) => ({ ...p, address: e.target.value }))
                   }
-                  placeholder="Your service area address"
+                  placeholder="123 Main St, Area"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
+
+              {/* City */}
+              <div className="space-y-1.5">
+                <Label htmlFor="techCity">City</Label>
                 <Input
-                  id="city"
+                  id="techCity"
+                  required
                   value={techForm.city}
                   onChange={(e) =>
                     setTechForm((p) => ({ ...p, city: e.target.value }))
                   }
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Submit Application
-              </Button>
+
+              {/* Error */}
+              {techError && (
+                <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  {techError}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  disabled={isTechSubmitting}
+                  onClick={() => { setIsModalOpen(false); setTechError(""); }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 gap-2"
+                  disabled={isTechSubmitting}
+                >
+                  {isTechSubmitting ? (
+                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Creating...</>
+                  ) : (
+                    <><Sparkles className="w-3.5 h-3.5" /> Register Now</>
+                  )}
+                </Button>
+              </div>
             </form>
           </div>
         </div>
