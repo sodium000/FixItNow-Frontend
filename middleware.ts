@@ -1,13 +1,30 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+// Protected routes that require authentication
+const PROTECTED_ROUTES = ["/myprofile", "/dashboard", "/booking"];
+
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get("accessToken")?.value;
   const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  const response = NextResponse.next();
+  // ──────────────────────────────────────────────────────────────────────────
+  // 1. Protected Route Guard: if no tokens at all → redirect to /login
+  // ──────────────────────────────────────────────────────────────────────────
+  const isProtected = PROTECTED_ROUTES.some((route) =>
+    pathname.startsWith(route),
+  );
 
-  // If accessToken is missing but refreshToken is present, call backend API to refresh
+  if (isProtected && !accessToken && !refreshToken) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 2. Auto Token Refresh: accessToken missing but refreshToken present
+  // ──────────────────────────────────────────────────────────────────────────
   if (!accessToken && refreshToken) {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -27,6 +44,8 @@ export async function middleware(request: NextRequest) {
         resData?.data?.refreshToken || resData?.refreshToken;
 
       if (newAccessToken) {
+        const response = NextResponse.next();
+
         response.cookies.set({
           name: "accessToken",
           value: newAccessToken,
@@ -46,13 +65,26 @@ export async function middleware(request: NextRequest) {
             path: "/",
           });
         }
+
+        return response;
+      }
+
+      // Refresh failed on a protected route → redirect to login
+      if (isProtected) {
+        const loginUrl = new URL("/login", request.url);
+        loginUrl.searchParams.set("redirect", pathname);
+        return NextResponse.redirect(loginUrl);
       }
     } catch (error) {
       console.log("Middleware backend token refresh failed:", error);
+      if (isProtected) {
+        const loginUrl = new URL("/login", request.url);
+        return NextResponse.redirect(loginUrl);
+      }
     }
   }
 
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {

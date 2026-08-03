@@ -26,7 +26,7 @@ export function CustomerBookingChart({ bookings }: CustomerBookingChartProps) {
       return {
         month,
         count: monthBookings.length,
-        spent: spent || (month === "May" ? 5000 : month === "Jun" ? 8000 : 1500),
+        spent: spent,
       };
     });
   }, [bookings]);
@@ -40,7 +40,9 @@ export function CustomerBookingChart({ bookings }: CustomerBookingChartProps) {
     <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
       <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="text-base font-bold text-foreground">My Booking & Spending Analytics</h3>
+          <h3 className="text-base font-bold text-foreground">
+            My Booking & Spending Analytics
+          </h3>
           <p className="text-xs text-muted-foreground">
             Monthly service activity and expenditure overview
           </p>
@@ -49,7 +51,9 @@ export function CustomerBookingChart({ bookings }: CustomerBookingChartProps) {
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Total Spent
           </p>
-          <p className="text-lg font-extrabold text-primary">{formatCurrency(totalSpent)}</p>
+          <p className="text-lg font-extrabold text-primary">
+            {formatCurrency(totalSpent)}
+          </p>
         </div>
       </div>
 
@@ -61,9 +65,23 @@ export function CustomerBookingChart({ bookings }: CustomerBookingChartProps) {
           aria-label="Customer booking chart"
         >
           <defs>
-            <linearGradient id="customerBarGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--primary, #3b82f6)" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="var(--primary, #3b82f6)" stopOpacity="0.4" />
+            <linearGradient
+              id="customerBarGradient"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop
+                offset="0%"
+                stopColor="var(--primary, #3b82f6)"
+                stopOpacity="0.9"
+              />
+              <stop
+                offset="100%"
+                stopColor="var(--primary, #3b82f6)"
+                stopOpacity="0.4"
+              />
             </linearGradient>
           </defs>
 
@@ -104,7 +122,8 @@ export function CustomerBookingChart({ bookings }: CustomerBookingChartProps) {
                   textAnchor="middle"
                   className="fill-foreground text-[10px] font-bold opacity-90 group-hover:opacity-100"
                 >
-                  ৳{d.spent > 1000 ? `${(d.spent / 1000).toFixed(1)}k` : d.spent}
+                  ৳
+                  {d.spent > 1000 ? `${(d.spent / 1000).toFixed(1)}k` : d.spent}
                 </text>
                 {/* Month label */}
                 <text
@@ -124,7 +143,9 @@ export function CustomerBookingChart({ bookings }: CustomerBookingChartProps) {
       <div className="mt-4 grid grid-cols-3 gap-3 border-t border-border pt-4 text-center text-xs">
         <div>
           <p className="text-muted-foreground">Total Orders</p>
-          <p className="text-sm font-bold text-foreground">{bookings.length} Bookings</p>
+          <p className="text-sm font-bold text-foreground">
+            {bookings.length} Bookings
+          </p>
         </div>
         <div>
           <p className="text-muted-foreground">Completed</p>
