@@ -123,8 +123,6 @@ export default function AdminDashboardPage() {
     staleTime: 1000 * 30,
   });
 
-  console.log(categoriesRes);
-
   const rawCategories = Array.isArray(categoriesRes?.data?.services)
     ? categoriesRes?.data?.services
     : categoriesRes?.data?.categories || categoriesRes?.data?.result || [];
@@ -1066,12 +1064,14 @@ export default function AdminDashboardPage() {
                                     <td className="px-4 py-3 text-foreground font-semibold">
                                       {formatCurrency(service.price)}
                                     </td>
-                                     <td className="px-4 py-3 text-muted-foreground">
-                                       {service.technician?.user?.name ||
-                                         getTechnicianName(service.technicianId || "") ||
-                                         service.technicianId ||
-                                         "—"}
-                                     </td>
+                                    <td className="px-4 py-3 text-muted-foreground">
+                                      {service.technician?.user?.name ||
+                                        getTechnicianName(
+                                          service.technicianId || "",
+                                        ) ||
+                                        service.technicianId ||
+                                        "—"}
+                                    </td>
                                   </tr>
                                 ))}
                               </tbody>
