@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, UploadCloud, X, Wrench, User } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  UploadCloud,
+  X,
+  Wrench,
+  User,
+  Loader2,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,13 +22,16 @@ import { useForm } from "react-hook-form";
 import { RegistrationHandle } from "../FuntionalWork/Registration";
 import { RegUserType } from "../FuntionalWork/Typefile/Type";
 import toast from "react-hot-toast";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function RegistrationCard() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   const {
     register,
@@ -45,20 +56,32 @@ export default function RegistrationCard() {
     setPhotoPreview(URL.createObjectURL(file));
     const formData = new FormData();
     formData.append("image", file);
+    setIsUploadingPhoto(true);
+    const uploadToastId = toast.loading("Uploading photo...");
 
-    const res = await fetch(
-      `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
-
-    const data = await res.json();
-
-    if (data.success) {
-      const imageUrl = data.data.url;
-      setValue("photo", imageUrl);
+    try {
+      const res = await fetch(
+        `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
+        { method: "POST", body: formData },
+      );
+      const data = await res.json();
+      if (data.success) {
+        if (isTechnician) {
+          setValue("role", "TECHNICIAN");
+        }
+        setValue("photo", data.data.url);
+        toast.success("Photo uploaded!", { id: uploadToastId });
+      } else {
+        toast.error("Photo upload failed. Please try again.", {
+          id: uploadToastId,
+        });
+      }
+    } catch {
+      toast.error("Photo upload failed. Please try again.", {
+        id: uploadToastId,
+      });
+    } finally {
+      setIsUploadingPhoto(false);
     }
   };
 
@@ -69,12 +92,28 @@ export default function RegistrationCard() {
   };
 
   const onSubmit = async (data: RegUserType) => {
-    const result = await RegistrationHandle(data);
-    if (result?.success) {
-      toast.success("Registration successful! Please login");
-      redirect("/login");
-    } else {
-      toast.error(result?.error || "Registration failed. Please try again.");
+    setIsSubmitting(true);
+    const toastId = toast.loading(
+      data.role === "TECHNICIAN"
+        ? "Creating your technician account..."
+        : "Creating your account...",
+    );
+    try {
+      const result = await RegistrationHandle(data);
+      if (result?.success) {
+        toast.success("Registration successful! Redirecting to login...", {
+          id: toastId,
+        });
+        router.push("/login");
+      } else {
+        toast.error(result?.error || "Registration failed. Please try again.", {
+          id: toastId,
+        });
+      }
+    } catch {
+      toast.error("An unexpected error occurred.", { id: toastId });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -193,7 +232,8 @@ export default function RegistrationCard() {
             </h1>
 
             <p className="mt-2 text-xs text-gray-400">
-              Register as a Customer to book services, or as a Technician to offer your skills.
+              Register as a Customer to book services, or as a Technician to
+              offer your skills.
             </p>
           </section>
         </div>
@@ -217,7 +257,6 @@ export default function RegistrationCard() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
               {/* ── Role Selector ── */}
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-gray-500">
@@ -254,7 +293,10 @@ export default function RegistrationCard() {
 
               {/* Full Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="name" className="text-xs font-semibold text-gray-500">
+                <Label
+                  htmlFor="name"
+                  className="text-xs font-semibold text-gray-500"
+                >
                   Full Name
                 </Label>
                 <Input
@@ -271,7 +313,10 @@ export default function RegistrationCard() {
 
               {/* Email */}
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-xs font-semibold text-gray-500">
+                <Label
+                  htmlFor="email"
+                  className="text-xs font-semibold text-gray-500"
+                >
                   Email
                 </Label>
                 <Input
@@ -288,7 +333,10 @@ export default function RegistrationCard() {
 
               {/* Phone */}
               <div className="space-y-1.5">
-                <Label htmlFor="number" className="text-xs font-semibold text-gray-500">
+                <Label
+                  htmlFor="number"
+                  className="text-xs font-semibold text-gray-500"
+                >
                   Phone Number
                 </Label>
                 <Input
@@ -305,7 +353,10 @@ export default function RegistrationCard() {
 
               {/* Profile Photo */}
               <div className="space-y-1.5">
-                <Label htmlFor="photo" className="text-xs font-semibold text-gray-500">
+                <Label
+                  htmlFor="photo"
+                  className="text-xs font-semibold text-gray-500"
+                >
                   Profile Photo
                 </Label>
                 {!photoPreview ? (
@@ -359,7 +410,10 @@ export default function RegistrationCard() {
                   <div className="grid grid-cols-2 gap-3">
                     {/* Experience */}
                     <div className="space-y-1.5">
-                      <Label htmlFor="experienceYrs" className="text-xs font-semibold text-gray-500">
+                      <Label
+                        htmlFor="experienceYrs"
+                        className="text-xs font-semibold text-gray-500"
+                      >
                         Experience (yrs)
                       </Label>
                       <Input
@@ -381,7 +435,10 @@ export default function RegistrationCard() {
 
                     {/* Hourly Rate */}
                     <div className="space-y-1.5">
-                      <Label htmlFor="hourlyRate" className="text-xs font-semibold text-gray-500">
+                      <Label
+                        htmlFor="hourlyRate"
+                        className="text-xs font-semibold text-gray-500"
+                      >
                         Hourly Rate (৳)
                       </Label>
                       <Input
@@ -404,7 +461,10 @@ export default function RegistrationCard() {
 
                   {/* City */}
                   <div className="space-y-1.5">
-                    <Label htmlFor="city" className="text-xs font-semibold text-gray-500">
+                    <Label
+                      htmlFor="city"
+                      className="text-xs font-semibold text-gray-500"
+                    >
                       City
                     </Label>
                     <Input
@@ -421,7 +481,10 @@ export default function RegistrationCard() {
 
                   {/* Address */}
                   <div className="space-y-1.5">
-                    <Label htmlFor="address" className="text-xs font-semibold text-gray-500">
+                    <Label
+                      htmlFor="address"
+                      className="text-xs font-semibold text-gray-500"
+                    >
                       Service Area Address
                     </Label>
                     <Input
@@ -432,7 +495,9 @@ export default function RegistrationCard() {
                       className="h-11 rounded-xl"
                     />
                     {errors.address && (
-                      <p className="text-xs text-red-500">Address is required</p>
+                      <p className="text-xs text-red-500">
+                        Address is required
+                      </p>
                     )}
                   </div>
                 </div>
@@ -440,7 +505,10 @@ export default function RegistrationCard() {
 
               {/* Password */}
               <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-xs font-semibold text-gray-500">
+                <Label
+                  htmlFor="password"
+                  className="text-xs font-semibold text-gray-500"
+                >
                   Password
                 </Label>
                 <div className="relative">
@@ -474,7 +542,10 @@ export default function RegistrationCard() {
 
               {/* Confirm Password */}
               <div className="space-y-1.5">
-                <Label htmlFor="confirmPassword" className="text-xs font-semibold text-gray-500">
+                <Label
+                  htmlFor="confirmPassword"
+                  className="text-xs font-semibold text-gray-500"
+                >
                   Confirm Password
                 </Label>
                 <div className="relative">
@@ -508,8 +579,23 @@ export default function RegistrationCard() {
                 </div>
               </div>
 
-              <Button type="submit" className="h-12 w-full rounded-xl">
-                {isTechnician ? "Register as Technician" : "Create Account"}
+              <Button
+                type="submit"
+                disabled={isSubmitting || isUploadingPhoto}
+                className="h-12 w-full rounded-xl gap-2 font-bold"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {isTechnician
+                      ? "Registering as Technician..."
+                      : "Creating Account..."}
+                  </>
+                ) : isTechnician ? (
+                  "Register as Technician"
+                ) : (
+                  "Create Account"
+                )}
               </Button>
             </form>
 
@@ -545,7 +631,10 @@ export default function RegistrationCard() {
 
             <p className="mt-5 text-center text-xs text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/login" className="font-bold text-black hover:underline">
+              <Link
+                href="/login"
+                className="font-bold text-black hover:underline"
+              >
                 Sign In
               </Link>
             </p>

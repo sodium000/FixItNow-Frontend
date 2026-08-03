@@ -10,18 +10,25 @@ interface CategoryShareChartProps {
 }
 
 export function CategoryShareChart({ categories, bookings }: CategoryShareChartProps) {
-  const categoryStats = categories.map((cat) => {
-    const catServicesIds = cat.services.map((s) => s.id);
-    const catBookings = bookings.filter(
-      (b) => catServicesIds.includes(b.serviceId) || b.service?.categoryName === cat.name
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeBookings = Array.isArray(bookings) ? bookings : [];
+
+  const categoryStats = safeCategories.map((cat) => {
+    const services = Array.isArray(cat?.services) ? cat.services : [];
+    const catServicesIds = services.map((s) => s?.id).filter(Boolean);
+    const catBookings = safeBookings.filter(
+      (b) => catServicesIds.includes(b?.serviceId) || (b?.service?.categoryName && b.service.categoryName === cat?.name)
     );
     const revenue = catBookings
-      .filter((b) => b.status === "COMPLETED")
-      .reduce((sum, b) => sum + b.totalAmount, 0);
+      .filter((b) => b?.status === "COMPLETED")
+      .reduce((sum, b) => {
+        const amt = typeof b?.totalAmount === "number" ? b.totalAmount : parseFloat(b?.totalAmount as any) || 0;
+        return sum + amt;
+      }, 0);
 
     return {
-      id: cat.id,
-      name: cat.name,
+      id: cat?.id || cat?.name || Math.random().toString(),
+      name: cat?.name || "Category",
       bookingsCount: catBookings.length,
       revenue,
     };

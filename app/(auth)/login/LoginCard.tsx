@@ -2,7 +2,9 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { loginUser } from "./loginfuntion";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export interface LoginUserType {
   email: string;
@@ -19,13 +21,36 @@ export interface LoginUserType {
 }
 
 export default function LoginCard() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [showPassword, setShowPassword] = useState(false);
 
   const mutation = useMutation({
     mutationFn: loginUser,
+    onMutate: () => {
+      toast.loading("Signing in to FixItNow...", { id: "login-toast" });
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success("Login successful! Redirecting...", { id: "login-toast" });
+        // Invalidate cached profile so navbar & dashboard see fresh auth state immediately
+        queryClient.invalidateQueries({ queryKey: ["myProfile"] });
+        const role = data.data?.role;
+        if (role === "ADMIN") router.push("/dashboard/admin");
+        else if (role === "TECHNICIAN") router.push("/dashboard/technician");
+        else router.push("/dashboard/customer");
+      } else {
+        toast.error(data.error || "Login failed. Please check your credentials.", {
+          id: "login-toast",
+        });
+      }
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "An error occurred during login.", {
+        id: "login-toast",
+      });
+    },
   });
-
-  console.log(mutation);
 
   const {
     register,
@@ -85,7 +110,6 @@ export default function LoginCard() {
                   fill="url(#serviceGrad)"
                   opacity="0.9"
                 />
-                {/* little house glyph on the card */}
                 <path
                   d="M 108 74 L 120 65 L 132 74"
                   fill="none"
@@ -99,108 +123,9 @@ export default function LoginCard() {
                   x="112"
                   y="74"
                   width="16"
-                  height="12"
-                  rx="1.5"
+                  height="14"
                   fill="#0c0c0c"
-                  opacity="0.6"
-                />
-                <rect
-                  x="97"
-                  y="84"
-                  width="34"
-                  height="6"
-                  rx="3"
-                  fill="#ffffff"
-                />
-
-                {/* Screen: service list rows (each a category chip) */}
-                <rect
-                  x="94"
-                  y="106"
-                  width="12"
-                  height="12"
-                  rx="4"
-                  fill="#a855f7"
-                  opacity="0.8"
-                />
-                <rect
-                  x="111"
-                  y="109"
-                  width="30"
-                  height="5"
-                  rx="2.5"
-                  fill="#8a8a8a"
-                />
-
-                <rect
-                  x="94"
-                  y="124"
-                  width="12"
-                  height="12"
-                  rx="4"
-                  fill="#22c55e"
-                  opacity="0.8"
-                />
-                <rect
-                  x="111"
-                  y="127"
-                  width="26"
-                  height="5"
-                  rx="2.5"
-                  fill="#8a8a8a"
-                />
-
-                <rect
-                  x="94"
-                  y="142"
-                  width="12"
-                  height="12"
-                  rx="4"
-                  fill="#a855f7"
-                  opacity="0.8"
-                />
-                <rect
-                  x="111"
-                  y="145"
-                  width="32"
-                  height="5"
-                  rx="2.5"
-                  fill="#8a8a8a"
-                />
-
-                {/* Home indicator */}
-                <rect
-                  x="112"
-                  y="163"
-                  width="36"
-                  height="4"
-                  rx="2"
-                  fill="#333"
-                />
-
-                {/* Floating tool badge (wrench) */}
-                <circle
-                  cx="52"
-                  cy="70"
-                  r="20"
-                  fill="url(#serviceGrad)"
-                  opacity="0.15"
-                />
-                <circle
-                  cx="52"
-                  cy="70"
-                  r="20"
-                  fill="none"
-                  stroke="url(#serviceGrad)"
-                  strokeWidth="2.5"
-                />
-                <path
-                  d="M 45 77 L 56 66 M 56 66 A 4 4 0 1 0 58 64 A 4 4 0 0 0 56 66"
-                  fill="none"
-                  stroke="#e5e5e5"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  opacity="0.7"
                 />
 
                 {/* Rating chip */}
@@ -227,32 +152,28 @@ export default function LoginCard() {
             </div>
 
             <h1 className="text-xl sm:text-2xl font-bold text-white">
-              Manage your Money Anywhere
+              FixItNow Portal
             </h1>
 
             <p className="mt-2 text-xs text-gray-400">
-              You can manage your money on the go with Quicken on the web.
+              Sign in to manage your bookings, schedule services, and view profile.
             </p>
           </section>
         </div>
 
         {/* Form */}
-
         <div className="w-full md:w-1/2">
           <section className="p-6 sm:p-8">
             {/* Logo */}
-
             <div className="mb-8 flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black">
                 <div className="h-2 w-4 rounded-full border-b-2 border-white" />
               </div>
-
-              <span className="text-xl font-bold">.Finance</span>
+              <span className="text-xl font-bold">FixItNow</span>
             </div>
 
             <div className="mb-8">
               <h2 className="text-2xl font-extrabold">Welcome Back!</h2>
-
               <p className="mt-1 text-sm text-muted-foreground">
                 Please enter login details below
               </p>
@@ -264,46 +185,49 @@ export default function LoginCard() {
               })}
               className="space-y-4"
             >
-              <Input
-                {...register("email", {
-                  required: "Email is required",
-                })}
-                placeholder="Email"
-                type="email"
-                className="h-12 rounded-xl"
-              />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email.message}</p>
-              )}
-
-              <div className="relative">
+              <div className="space-y-1">
                 <Input
-                  {...register("password", {
-                    required: "Password is required",
+                  {...register("email", {
+                    required: "Email is required",
                   })}
-                  placeholder="Password"
-                  type={showPassword ? "text" : "password"}
-                  className="h-12 rounded-xl pr-12"
+                  placeholder="Email"
+                  type="email"
+                  className="h-12 rounded-xl"
                 />
+                {errors.email && (
+                  <p className="text-xs text-red-500">{errors.email.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-1 relative">
+                <div className="relative">
+                  <Input
+                    {...register("password", {
+                      required: "Password is required",
+                    })}
+                    placeholder="Password"
+                    type={showPassword ? "text" : "password"}
+                    className="h-12 rounded-xl pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
                 {errors.password && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-xs text-red-500">
                     {errors.password.message}
                   </p>
                 )}
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
               </div>
 
               <div className="text-right">
                 <button
                   type="button"
-                  className="text-xs font-semibold hover:underline"
+                  className="text-xs font-semibold hover:underline text-muted-foreground"
                 >
                   Forget password?
                 </button>
@@ -312,19 +236,24 @@ export default function LoginCard() {
               <Button
                 disabled={mutation.isPending}
                 type="submit"
-                className="h-12 w-full rounded-xl"
+                className="h-12 w-full rounded-xl gap-2 font-bold"
               >
-                {mutation.isPending ? "Signing In..." : "Sign In"}
+                {mutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Signing In...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
               </Button>
             </form>
 
             <div className="my-8 flex items-center gap-4">
               <Separator className="flex-1" />
-
               <span className="text-[10px] uppercase tracking-widest text-gray-400">
                 or continue
               </span>
-
               <Separator className="flex-1" />
             </div>
 
@@ -352,9 +281,9 @@ export default function LoginCard() {
 
             <p className="mt-10 text-center text-xs text-muted-foreground">
               Don't have an account?{" "}
-              <button className="font-bold text-black hover:underline">
-                <Link href="/registration"> Sign Up</Link>
-              </button>
+              <Link href="/registration" className="font-bold text-black hover:underline">
+                Sign Up
+              </Link>
             </p>
           </section>
         </div>

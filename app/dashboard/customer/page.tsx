@@ -34,6 +34,7 @@ import { createReviewAction } from "@/app/review/reviewAction";
 import { becomeTechnicianAction } from "@/app/technician/technicianAction";
 import { useRouter } from "next/navigation";
 import type { Booking } from "@/lib/types";
+import toast from "react-hot-toast";
 
 // Normalize a booking from API (totalAmount may be a string)
 function normalizeBooking(raw: any): Booking {
@@ -42,7 +43,7 @@ function normalizeBooking(raw: any): Booking {
     totalAmount:
       typeof raw.totalAmount === "string"
         ? parseFloat(raw.totalAmount) || 0
-        : raw.totalAmount ?? 0,
+        : (raw.totalAmount ?? 0),
   };
 }
 
@@ -63,7 +64,9 @@ export default function CustomerDashboardPage() {
   });
 
   // Review modal state
-  const [reviewBookingId, setReviewBookingId] = React.useState<string | null>(null);
+  const [reviewBookingId, setReviewBookingId] = React.useState<string | null>(
+    null,
+  );
   const [reviewRating, setReviewRating] = React.useState(5);
   const [reviewComment, setReviewComment] = React.useState("");
   const [reviewError, setReviewError] = React.useState("");
@@ -87,6 +90,7 @@ export default function CustomerDashboardPage() {
     if (!reviewBookingId) return;
     setIsReviewSubmitting(true);
     setReviewError("");
+    const toastId = toast.loading("Submitting your review...");
     const res = await createReviewAction({
       bookingId: reviewBookingId,
       rating: reviewRating,
@@ -94,12 +98,12 @@ export default function CustomerDashboardPage() {
     });
     setIsReviewSubmitting(false);
     if (res.success) {
+      toast.success("Review submitted! Thank you for your feedback. ⭐", { id: toastId });
       setReviewedIds((prev) => new Set([...prev, reviewBookingId]));
       closeReviewModal();
-      setSuccessMessage("Your review was submitted successfully! Thank you.");
-      setTimeout(() => setSuccessMessage(""), 5000);
       queryClient.invalidateQueries({ queryKey: ["myBookings"] });
     } else {
+      toast.error(res.error || "Failed to submit review.", { id: toastId });
       setReviewError(res.error || "Failed to submit review.");
     }
   };
@@ -156,6 +160,7 @@ export default function CustomerDashboardPage() {
     e.preventDefault();
     setTechError("");
     setIsTechSubmitting(true);
+    const toastId = toast.loading("Creating your technician profile...");
     const res = await becomeTechnicianAction({
       name: techForm.name || user?.name || "",
       phone: techForm.phone || user?.phone || "",
@@ -166,13 +171,11 @@ export default function CustomerDashboardPage() {
     });
     setIsTechSubmitting(false);
     if (res.success) {
+      toast.success("🎉 Technician profile created! You are now registered as a technician.", { id: toastId });
       setIsModalOpen(false);
-      setSuccessMessage(
-        "🎉 Technician profile created! You are now registered as a technician.",
-      );
-      setTimeout(() => setSuccessMessage(""), 7000);
       queryClient.invalidateQueries({ queryKey: ["myProfile"] });
     } else {
+      toast.error(res.error || "Failed to create technician profile.", { id: toastId });
       setTechError(res.error || "Failed to create technician profile.");
     }
   };
@@ -252,12 +255,6 @@ export default function CustomerDashboardPage() {
           </Button>
         </div>
 
-        {successMessage && (
-          <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-700 dark:text-emerald-400">
-            <CheckCircle2 className="h-5 w-5 shrink-0" />
-            {successMessage}
-          </div>
-        )}
 
         {/* Profile Card — Real Data from /api/auth/me */}
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
@@ -313,19 +310,6 @@ export default function CustomerDashboardPage() {
                   Joined {formatDate(user.createdAt)}
                 </div>
               </div>
-
-              {!user.technicianProfile && (
-                <Link href="/registration">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5"
-                  >
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Register as Technician
-                  </Button>
-                </Link>
-              )}
             </div>
           </div>
         </div>
@@ -334,9 +318,7 @@ export default function CustomerDashboardPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total Bookings"
-            value={
-              isBookingsLoading ? "..." : customerBookings.length
-            }
+            value={isBookingsLoading ? "..." : customerBookings.length}
             subtitle="All time orders"
             icon={Bookmark}
           />
@@ -354,9 +336,7 @@ export default function CustomerDashboardPage() {
           />
           <StatCard
             title="Total Spent"
-            value={
-              isBookingsLoading ? "..." : formatCurrency(totalSpent)
-            }
+            value={isBookingsLoading ? "..." : formatCurrency(totalSpent)}
             subtitle="Completed & accepted services"
             icon={TrendingUp}
           />
@@ -370,7 +350,8 @@ export default function CustomerDashboardPage() {
                 My Bookings
               </h2>
               <p className="text-sm text-muted-foreground">
-                Your real service booking history, spending, and technician assignments from database.
+                Your real service booking history, spending, and technician
+                assignments from database.
               </p>
             </div>
           </div>
@@ -415,8 +396,12 @@ export default function CustomerDashboardPage() {
                   <MessageSquare className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-foreground">Leave a Review</h3>
-                  <p className="text-[11px] text-muted-foreground">Rate your completed service</p>
+                  <h3 className="text-base font-bold text-foreground">
+                    Leave a Review
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground">
+                    Rate your completed service
+                  </p>
                 </div>
               </div>
               <button
@@ -482,7 +467,10 @@ export default function CustomerDashboardPage() {
 
               {/* Booking ID info */}
               <p className="text-[10px] text-muted-foreground">
-                Reviewing booking ID: <span className="font-mono font-semibold">{reviewBookingId}</span>
+                Reviewing booking ID:{" "}
+                <span className="font-mono font-semibold">
+                  {reviewBookingId}
+                </span>
               </p>
 
               {/* Submit */}
@@ -502,9 +490,14 @@ export default function CustomerDashboardPage() {
                   disabled={isReviewSubmitting || !reviewComment.trim()}
                 >
                   {isReviewSubmitting ? (
-                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Submitting...</>
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />{" "}
+                      Submitting...
+                    </>
                   ) : (
-                    <><Star className="w-3.5 h-3.5" /> Submit Review</>
+                    <>
+                      <Star className="w-3.5 h-3.5" /> Submit Review
+                    </>
                   )}
                 </Button>
               </div>
@@ -534,7 +527,10 @@ export default function CustomerDashboardPage() {
               </div>
               <button
                 type="button"
-                onClick={() => { setIsModalOpen(false); setTechError(""); }}
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setTechError("");
+                }}
                 className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted transition-colors"
               >
                 <X className="h-5 w-5" />
@@ -651,7 +647,10 @@ export default function CustomerDashboardPage() {
                   variant="outline"
                   className="flex-1"
                   disabled={isTechSubmitting}
-                  onClick={() => { setIsModalOpen(false); setTechError(""); }}
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setTechError("");
+                  }}
                 >
                   Cancel
                 </Button>
@@ -661,9 +660,14 @@ export default function CustomerDashboardPage() {
                   disabled={isTechSubmitting}
                 >
                   {isTechSubmitting ? (
-                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Creating...</>
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />{" "}
+                      Creating...
+                    </>
                   ) : (
-                    <><Sparkles className="w-3.5 h-3.5" /> Register Now</>
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" /> Register Now
+                    </>
                   )}
                 </Button>
               </div>

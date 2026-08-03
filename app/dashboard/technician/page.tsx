@@ -25,12 +25,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import toast from "react-hot-toast";
 
 export default function TechnicianDashboardPage() {
   const [technician, setTechnician] = React.useState(CURRENT_TECHNICIAN);
   const [isPhotoModalOpen, setIsPhotoModalOpen] = React.useState(false);
   const [newPhotoUrl, setNewPhotoUrl] = React.useState(technician.user?.photoUrl ?? "");
-  const [successMessage, setSuccessMessage] = React.useState("");
+  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
 
   const myBookings = MOCK_BOOKINGS.filter((b) => b.technicianId === technician.id);
   const pendingJobs = myBookings.filter((b) => b.status === "PENDING");
@@ -39,7 +40,9 @@ export default function TechnicianDashboardPage() {
   const totalEarnings = completedJobs.reduce((sum, b) => sum + b.totalAmount, 0);
 
   const toggleAvailability = () => {
-    setTechnician((prev) => ({ ...prev, isAvailable: !prev.isAvailable }));
+    const next = !technician.isAvailable;
+    setTechnician((prev) => ({ ...prev, isAvailable: next }));
+    toast.success(next ? "You are now available for jobs! ✅" : "You are now offline.");
   };
 
   const handleUpdatePhoto = (e: React.FormEvent) => {
@@ -50,8 +53,7 @@ export default function TechnicianDashboardPage() {
       user: prev.user ? { ...prev.user, photoUrl: newPhotoUrl.trim() } : prev.user,
     }));
     setIsPhotoModalOpen(false);
-    setSuccessMessage("Profile picture updated successfully!");
-    setTimeout(() => setSuccessMessage(""), 4000);
+    toast.success("Profile picture updated successfully! 📸");
   };
 
   const updateBookingStatus = (bookingId: string, status: "ACCEPTED" | "COMPLETED" | "CANCELLED") => {

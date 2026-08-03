@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type { Role } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 interface NavLink {
   label: string;
@@ -153,13 +154,24 @@ export function DashboardSidebar({
             </span>
           </div>
         </div>
-        <Link
-          href="/"
-          className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        <button
+          type="button"
+          onClick={async () => {
+            const toastId = toast.loading("Signing out...");
+            try {
+              const { logoutUser } = await import("@/app/(auth)/login/loginfuntion");
+              await logoutUser();
+              toast.success("Signed out successfully!", { id: toastId });
+              window.location.href = "/login";
+            } catch {
+              toast.error("Failed to sign out. Please try again.", { id: toastId });
+            }
+          }}
+          className="w-full flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
         >
           <LogOut className="h-4 w-4" />
-          Back to Site
-        </Link>
+          Sign Out / Logout
+        </button>
       </div>
     </aside>
   );

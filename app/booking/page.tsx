@@ -26,6 +26,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 import { formatCurrency } from "@/lib/mock-data";
 import {
@@ -239,13 +240,14 @@ function BookingContent() {
 
     setIsSubmitting(true);
     setSubmitError("");
+    const toastId = toast.loading("Processing booking & preparing Stripe checkout...");
 
     try {
       const scheduledAtIso = new Date(
         `${selectedDate}T17:00:00.000Z`,
       ).toISOString();
 
-      // 1. Call createBookingAction -> POST /api/bookings (no technicianId sent to backend)
+      // 1. Call createBookingAction -> POST /api/bookings
       const bookingRes = await createBookingAction({
         serviceId: selectedService.id,
         scheduledAt: scheduledAtIso,
@@ -253,9 +255,8 @@ function BookingContent() {
         notes: formData.notes || "Customer appointment",
       });
 
-      console.log("Booking response:", bookingRes);
-
       if (!bookingRes.success) {
+        toast.error(bookingRes.error || "Failed to create booking.", { id: toastId });
         setSubmitError(bookingRes.error || "Failed to create booking.");
         setIsSubmitting(false);
         return;
@@ -265,6 +266,7 @@ function BookingContent() {
       const bookingId = bookingData?.id || bookingRes.data?.bookingId;
 
       if (!bookingId) {
+        toast.error("Booking created, but no booking ID returned.", { id: toastId });
         setSubmitError("Booking created, but no booking ID was returned.");
         setIsSubmitting(false);
         return;
@@ -274,10 +276,12 @@ function BookingContent() {
       const checkoutRes = await createCheckoutSessionAction(bookingId);
 
       if (checkoutRes.success && checkoutRes.url) {
+        toast.success("Booking confirmed! Redirecting to payment...", { id: toastId });
         window.location.href = checkoutRes.url;
         return;
       }
 
+      toast.success("Booking submitted successfully!", { id: toastId });
       setConfirmedDetails({
         bookingId,
         serviceName: selectedService.name,
@@ -289,9 +293,9 @@ function BookingContent() {
       });
       setBookingConfirmed(true);
     } catch (err: any) {
-      setSubmitError(
-        err?.message || "An unexpected error occurred during checkout.",
-      );
+      const errMsg = err?.message || "An error occurred during checkout.";
+      toast.error(errMsg, { id: toastId });
+      setSubmitError(errMsg);
     } finally {
       setIsSubmitting(false);
     }
