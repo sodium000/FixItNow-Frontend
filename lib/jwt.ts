@@ -2,9 +2,9 @@
 import jwt from "jsonwebtoken";
 
 const ACCESS_SECRET =
-  process.env.NEXT_PUBLIC_JWT_ACCESS_EXPIRES_SECRET || "access_secret";
+  process.env.JWT_ACCESS_SECRET || process.env.NEXT_PUBLIC_JWT_ACCESS_EXPIRES_SECRET || "access_secret";
 const REFRESH_SECRET =
-  process.env.NEXT_PUBLIC_JWT_REFRESH_EXPIRES_SECRET || "refresh_secret";
+  process.env.JWT_REFRESH_SECRET || process.env.NEXT_PUBLIC_JWT_REFRESH_EXPIRES_SECRET || "refresh_secret";
 
 const generateToken = (
   payload: object,

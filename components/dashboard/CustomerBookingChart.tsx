@@ -33,7 +33,7 @@ export function CustomerBookingChart({ bookings }: CustomerBookingChartProps) {
         return m === month;
       });
       const spent = monthBookings
-        .filter((b) => b.status === "COMPLETED" || b.status === "ACCEPTED")
+        .filter((b) => b.status === "COMPLETED" || b.status === "ACCEPT")
         .reduce((sum, b) => sum + b.totalAmount, 0);
 
       return {
@@ -74,7 +74,7 @@ export function CustomerBookingChart({ bookings }: CustomerBookingChartProps) {
       <div className="overflow-x-auto pb-2">
         <svg
           viewBox="0 0 780 160"
-          className="w-full h-auto max-h-[200px]"
+          className="w-full h-auto max-h-50"
           aria-label="Customer booking chart"
         >
           <defs>

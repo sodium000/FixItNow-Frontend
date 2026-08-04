@@ -5,6 +5,7 @@ import { Search, Calendar, MapPin, Wrench, Star } from "lucide-react";
 import type { Booking, BookingStatus } from "@/lib/types";
 import { formatCurrency, formatDateTime } from "@/lib/mock-data";
 import { StatusBadge } from "./StatusBadge";
+import Image from "next/image";
 
 interface BookingsTableProps {
   bookings: Booking[];
@@ -154,13 +155,15 @@ export function BookingsTable({
                   {showCustomer && (
                     <td className="px-5 py-4 text-muted-foreground">
                       <div className="flex items-center gap-2.5">
-                        <img
+                        <Image 
                           src={
                             booking.customer?.photoUrl ||
                             "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop"
                           }
                           alt={booking.customer?.name || "Customer"}
                           className="h-8 w-8 rounded-full border border-border object-cover shrink-0"
+                          width={250}
+                          height={250}
                         />
                         <span className="font-semibold text-foreground text-xs">
                           {booking.customer?.name ?? "—"}
@@ -173,11 +176,14 @@ export function BookingsTable({
                   {showTechnician && (
                     <td className="px-5 py-4 text-muted-foreground">
                       <div className="flex items-center gap-2.5">
-                        <img
+                        <Image
                           src={
                             booking.technician?.user?.photoUrl ||
                             "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop"
+
                           }
+                           width={250}
+                          height={250}
                           alt={booking.technician?.user?.name || "Technician"}
                           className="h-8 w-8 rounded-full border border-border object-cover shrink-0"
                         />
@@ -204,7 +210,7 @@ export function BookingsTable({
                   </td>
 
                   {/* Location Address */}
-                  <td className="px-5 py-4 text-xs text-muted-foreground max-w-[180px] truncate">
+                  <td className="px-5 py-4 text-xs text-muted-foreground max-w-45 truncate">
                     <div className="flex items-center gap-1.5">
                       <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                       <span className="truncate">{booking.address}</span>

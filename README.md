@@ -36,6 +36,13 @@ npm run dev
 
 Open http://localhost:3000 in your browser.
 
+## Vercel Deployment
+
+1. Create a Vercel project from this repository.
+2. In Vercel dashboard, add the environment variables from `.env.example`.
+3. Set `NEXT_PUBLIC_API_URL` to your deployed backend API URL.
+4. Set `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` in Vercel as server-only variables.
+
 ## Scripts
 
 - `npm run dev` — start development server

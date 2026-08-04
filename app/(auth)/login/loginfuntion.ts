@@ -4,7 +4,6 @@ import { axiosInstance } from "@/lib/axios";
 import { LoginUserType } from "./LoginCard";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { cookies } from "next/headers";
-import { jwtUtils } from "@/lib/jwt";
 
 export const loginUser = async (data: LoginUserType) => {
   try {
