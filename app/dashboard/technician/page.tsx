@@ -65,7 +65,9 @@ type ProfileFormState = {
   city: string;
 };
 
-function buildProfileForm(technician: TechnicianProfileResponse): ProfileFormState {
+function buildProfileForm(
+  technician: TechnicianProfileResponse,
+): ProfileFormState {
   return {
     name: technician.user?.name ?? "",
     phone: technician.user?.phone ?? "",
@@ -80,12 +82,16 @@ export default function TechnicianDashboardPage() {
   const queryClient = useQueryClient();
   const [isPhotoModalOpen, setIsPhotoModalOpen] = React.useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
-  const [isTogglingAvailability, setIsTogglingAvailability] = React.useState(false);
-  const [updatingBookingId, setUpdatingBookingId] = React.useState<string | null>(null);
+  const [isTogglingAvailability, setIsTogglingAvailability] =
+    React.useState(false);
+  const [updatingBookingId, setUpdatingBookingId] = React.useState<
+    string | null
+  >(null);
   const [isSavingProfile, setIsSavingProfile] = React.useState(false);
   const [isSavingPhoto, setIsSavingPhoto] = React.useState(false);
 
-  const [profileDraft, setProfileDraft] = React.useState<ProfileFormState | null>(null);
+  const [profileDraft, setProfileDraft] =
+    React.useState<ProfileFormState | null>(null);
   const [photoDraft, setPhotoDraft] = React.useState("");
 
   const {
@@ -97,7 +103,8 @@ export default function TechnicianDashboardPage() {
     queryKey: ["technicianProfile"],
     queryFn: async () => {
       const result = await getTechnicianProfileAction();
-      if (!result.success) throw new Error(result.error || "Failed to load profile");
+      if (!result.success)
+        throw new Error(result.error || "Failed to load profile");
       return result.data;
     },
     retry: false,
@@ -108,7 +115,8 @@ export default function TechnicianDashboardPage() {
     queryKey: ["technicianBookings"],
     queryFn: async () => {
       const result = await getTechnicianBookingsAction();
-      if (!result.success) throw new Error(result.error || "Failed to load bookings");
+      if (!result.success)
+        throw new Error(result.error || "Failed to load bookings");
       return Array.isArray(result.data) ? result.data : [];
     },
     enabled: !!technician,
@@ -133,25 +141,35 @@ export default function TechnicianDashboardPage() {
   };
 
   const pendingJobs = myBookings.filter((b) => b.status === "PENDING");
-  const activeJobs = myBookings.filter((b) => b.status === "ACCEPTED");
+  const activeJobs = myBookings.filter((b) => b.status === "ACCEPT");
   const completedJobs = myBookings.filter((b) => b.status === "COMPLETED");
-  const totalEarnings = completedJobs.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+  const totalEarnings = completedJobs.reduce(
+    (sum, b) => sum + (b.totalAmount || 0),
+    0,
+  );
 
   const toggleAvailability = async () => {
     if (!technician) return;
     const next = !technician.isAvailable;
     setIsTogglingAvailability(true);
-    const toastId = toast.loading(next ? "Going online..." : "Going offline...");
+    const toastId = toast.loading(
+      next ? "Going online..." : "Going offline...",
+    );
     const res = await updateTechnicianAvailabilityAction(next);
     setIsTogglingAvailability(false);
 
     if (res.success) {
-      toast.success(next ? "You are now available for jobs!" : "You are now offline.", {
-        id: toastId,
-      });
+      toast.success(
+        next ? "You are now available for jobs!" : "You are now offline.",
+        {
+          id: toastId,
+        },
+      );
       queryClient.invalidateQueries({ queryKey: ["technicianProfile"] });
     } else {
-      toast.error(res.error || "Failed to update availability.", { id: toastId });
+      toast.error(res.error || "Failed to update availability.", {
+        id: toastId,
+      });
     }
   };
 
@@ -200,9 +218,14 @@ export default function TechnicianDashboardPage() {
     }
   };
 
-  const updateBookingStatus = async (bookingId: string, status: BookingStatus) => {
+  const updateBookingStatus = async (
+    bookingId: string,
+    status: BookingStatus,
+  ) => {
     setUpdatingBookingId(bookingId);
-    const toastId = toast.loading(`Updating booking to ${status.toLowerCase()}...`);
+    const toastId = toast.loading(
+      `Updating booking to ${status.toLowerCase()}...`,
+    );
     const res = await updateTechnicianBookingStatusAction(bookingId, status);
     setUpdatingBookingId(null);
 
@@ -243,8 +266,12 @@ export default function TechnicianDashboardPage() {
               <AlertCircle className="h-7 w-7 text-destructive" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-foreground">Unable to load profile</h2>
-              <p className="mt-1 text-sm text-muted-foreground">{errorMessage}</p>
+              <h2 className="text-lg font-bold text-foreground">
+                Unable to load profile
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {errorMessage}
+              </p>
             </div>
             {isAuthError ? (
               <Button asChild>
@@ -273,7 +300,8 @@ export default function TechnicianDashboardPage() {
               Technician Dashboard
             </h1>
             <p className="text-sm text-muted-foreground">
-              Manage your profile, availability, and assigned bookings from the API.
+              Manage your profile, availability, and assigned bookings from the
+              API.
             </p>
           </div>
           <Button
@@ -289,7 +317,9 @@ export default function TechnicianDashboardPage() {
             ) : (
               <ToggleLeft className="h-4 w-4" />
             )}
-            {technician.isAvailable ? "Available for Jobs" : "Currently Unavailable"}
+            {technician.isAvailable
+              ? "Available for Jobs"
+              : "Currently Unavailable"}
           </Button>
         </div>
 
@@ -329,15 +359,20 @@ export default function TechnicianDashboardPage() {
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-sm text-muted-foreground">{technician.user?.email}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {technician.user?.email}
+                </p>
                 {technician.user?.phone && (
-                  <p className="text-sm text-muted-foreground">{technician.user.phone}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {technician.user.phone}
+                  </p>
                 )}
                 <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <MapPin className="h-3.5 w-3.5" />
-                    {[technician.city, technician.address].filter(Boolean).join(", ") ||
-                      "No address set"}
+                    {[technician.city, technician.address]
+                      .filter(Boolean)
+                      .join(", ") || "No address set"}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
@@ -402,7 +437,9 @@ export default function TechnicianDashboardPage() {
         {/* Pending Jobs */}
         {pendingJobs.length > 0 && (
           <section className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground">Pending Requests</h2>
+            <h2 className="text-lg font-bold text-foreground">
+              Pending Requests
+            </h2>
             <div className="grid gap-3">
               {pendingJobs.map((booking) => (
                 <div
@@ -432,7 +469,7 @@ export default function TechnicianDashboardPage() {
                     <Button
                       size="sm"
                       disabled={updatingBookingId === booking.id}
-                      onClick={() => updateBookingStatus(booking.id, "ACCEPTED")}
+                      onClick={() => updateBookingStatus(booking.id, "ACCEPT")}
                     >
                       {updatingBookingId === booking.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -444,7 +481,7 @@ export default function TechnicianDashboardPage() {
                       size="sm"
                       variant="outline"
                       disabled={updatingBookingId === booking.id}
-                      onClick={() => updateBookingStatus(booking.id, "CANCELLED")}
+                      onClick={() => updateBookingStatus(booking.id, "DECLINE")}
                     >
                       Decline
                     </Button>
@@ -499,9 +536,12 @@ export default function TechnicianDashboardPage() {
         {/* All Jobs Table */}
         <section className="space-y-4">
           <div>
-            <h2 className="text-lg font-bold text-foreground">All Assigned Jobs</h2>
+            <h2 className="text-lg font-bold text-foreground">
+              All Assigned Jobs
+            </h2>
             <p className="text-sm text-muted-foreground">
-              Bookings loaded from <code className="text-xs">/api/technician/bookings</code>
+              Bookings loaded from{" "}
+              <code className="text-xs">/api/technician/bookings</code>
             </p>
           </div>
           {isBookingsLoading ? (
@@ -524,7 +564,9 @@ export default function TechnicianDashboardPage() {
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-foreground">Edit Technician Profile</h3>
+              <h3 className="text-lg font-bold text-foreground">
+                Edit Technician Profile
+              </h3>
               <button
                 type="button"
                 onClick={() => {
@@ -544,7 +586,9 @@ export default function TechnicianDashboardPage() {
                     id="name"
                     value={profileDraft.name}
                     onChange={(e) =>
-                      setProfileDraft((p) => (p ? { ...p, name: e.target.value } : p))
+                      setProfileDraft((p) =>
+                        p ? { ...p, name: e.target.value } : p,
+                      )
                     }
                     required
                   />
@@ -555,7 +599,9 @@ export default function TechnicianDashboardPage() {
                     id="phone"
                     value={profileDraft.phone}
                     onChange={(e) =>
-                      setProfileDraft((p) => (p ? { ...p, phone: e.target.value } : p))
+                      setProfileDraft((p) =>
+                        p ? { ...p, phone: e.target.value } : p,
+                      )
                     }
                   />
                 </div>
@@ -595,7 +641,9 @@ export default function TechnicianDashboardPage() {
                     id="address"
                     value={profileDraft.address}
                     onChange={(e) =>
-                      setProfileDraft((p) => (p ? { ...p, address: e.target.value } : p))
+                      setProfileDraft((p) =>
+                        p ? { ...p, address: e.target.value } : p,
+                      )
                     }
                   />
                 </div>
@@ -605,12 +653,14 @@ export default function TechnicianDashboardPage() {
                     id="city"
                     value={profileDraft.city}
                     onChange={(e) =>
-                      setProfileDraft((p) => (p ? { ...p, city: e.target.value } : p))
+                      setProfileDraft((p) =>
+                        p ? { ...p, city: e.target.value } : p,
+                      )
                     }
                   />
                 </div>
               </div>
-              <div className="flex gap-2 pt-2">
+              <div className="flex flex-col gap-2 pt-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -622,7 +672,11 @@ export default function TechnicianDashboardPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="w-full" disabled={isSavingProfile}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSavingProfile}
+                >
                   {isSavingProfile ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
@@ -640,7 +694,9 @@ export default function TechnicianDashboardPage() {
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-foreground">Update Profile Picture</h3>
+              <h3 className="text-lg font-bold text-foreground">
+                Update Profile Picture
+              </h3>
               <button
                 type="button"
                 onClick={() => {
@@ -685,7 +741,11 @@ export default function TechnicianDashboardPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" className="w-full" disabled={isSavingPhoto}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSavingPhoto}
+                >
                   {isSavingPhoto ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (

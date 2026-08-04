@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -7,13 +8,14 @@ import {
   User,
   Wrench,
   Shield,
-  CalendarCheck2,
   LogOut,
   ChevronRight,
 } from "lucide-react";
 import type { Role } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
+import { getCurrentUser } from "./getUser";
+// Adjust path to action file
 
 interface NavLink {
   label: string;
@@ -50,23 +52,52 @@ const NAV_LINKS: NavLink[] = [
 ];
 
 interface DashboardSidebarProps {
-  role: Role;
-  userName: string;
-  userEmail: string;
+  role?: Role;
+  userName?: string;
+  userEmail?: string;
   userPhotoUrl?: string;
   onRoleChange?: (role: Role) => void;
 }
 
 export function DashboardSidebar({
-  role,
-  userName,
-  userEmail,
-  userPhotoUrl,
-  onRoleChange,
+  role: initialRole = "CUSTOMER",
+  userName: initialName = "User",
+  userEmail: initialEmail = "",
+  userPhotoUrl: initialPhotoUrl,
 }: DashboardSidebarProps) {
   const pathname = usePathname();
 
-  const visibleLinks = NAV_LINKS.filter((link) => link.roles.includes(role));
+  const [userInfo, setUserInfo] = useState({
+    name: initialName,
+    email: initialEmail,
+    role: initialRole,
+    photoUrl: initialPhotoUrl,
+  });
+
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          setUserInfo({
+            name: user.name,
+            email: user.email,
+            role: user.role as Role,
+            photoUrl: user.photoUrl,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load user from token:", error);
+      }
+    }
+
+    fetchUserData();
+  }, []);
+
+  const activeRole = userInfo.role;
+  const visibleLinks = NAV_LINKS.filter((link) =>
+    link.roles.includes(activeRole),
+  );
 
   return (
     <aside className="flex h-full w-64 shrink-0 flex-col border-r border-border bg-sidebar">
@@ -76,7 +107,9 @@ export function DashboardSidebar({
             <Wrench className="h-4 w-4" />
           </div>
           <div>
-            <p className="text-sm font-bold text-sidebar-foreground">FixItNow</p>
+            <p className="text-sm font-bold text-sidebar-foreground">
+              FixItNow
+            </p>
             <p className="text-[10px] text-muted-foreground">Dashboard</p>
           </div>
         </Link>
@@ -89,7 +122,8 @@ export function DashboardSidebar({
         {visibleLinks.map((link) => {
           const isActive =
             pathname === link.href ||
-            (link.href !== "/dashboard" && pathname.startsWith(link.href.split("#")[0]));
+            (link.href !== "/dashboard" &&
+              pathname.startsWith(link.href.split("#")[0]));
           const Icon = link.icon;
 
           return (
@@ -111,46 +145,25 @@ export function DashboardSidebar({
         })}
       </nav>
 
-      {onRoleChange && (
-        <div className="border-t border-border p-4">
-          <p className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Demo: Switch Role
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {(["CUSTOMER", "TECHNICIAN", "ADMIN"] as Role[]).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => onRoleChange(r)}
-                className={cn(
-                  "rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase transition-colors",
-                  role === r
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80",
-                )}
-              >
-                {r}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div className="border-t border-border p-4">
         <div className="mb-3 flex items-center gap-3 rounded-xl bg-muted/50 p-3">
           <img
             src={
-              userPhotoUrl ||
-              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop"
+              userInfo.photoUrl ||
+              "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=300&auto=format&fit=crop&q=80"
             }
-            alt={userName}
+            alt={userInfo.name}
             className="h-10 w-10 shrink-0 rounded-full border border-border object-cover"
           />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-foreground">{userName}</p>
-            <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
+            <p className="truncate text-sm font-semibold text-foreground">
+              {userInfo.name}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {userInfo.email}
+            </p>
             <span className="mt-1 inline-flex rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase text-primary">
-              {role}
+              {activeRole}
             </span>
           </div>
         </div>
@@ -159,12 +172,15 @@ export function DashboardSidebar({
           onClick={async () => {
             const toastId = toast.loading("Signing out...");
             try {
-              const { logoutUser } = await import("@/app/(auth)/login/loginfuntion");
+              const { logoutUser } =
+                await import("@/app/(auth)/login/loginfuntion");
               await logoutUser();
               toast.success("Signed out successfully!", { id: toastId });
               window.location.href = "/login";
             } catch {
-              toast.error("Failed to sign out. Please try again.", { id: toastId });
+              toast.error("Failed to sign out. Please try again.", {
+                id: toastId,
+              });
             }
           }}
           className="w-full flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"

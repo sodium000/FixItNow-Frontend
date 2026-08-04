@@ -12,6 +12,7 @@ import {
   ArrowRight,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -204,7 +205,6 @@ export default function RepairProcessSection() {
       ref={containerRef}
       className="relative min-h-[92vh] bg-transparent text-foreground font-sans overflow-hidden selection:bg-primary/20 selection:text-primary"
     >
-
       {/* =========================================================================
           SECTION CONTENT
          ========================================================================= */}
@@ -333,12 +333,14 @@ export default function RepairProcessSection() {
         </div>
 
         {/* BOTTOM CALL TO ACTION BUTTON */}
-        <div className="mt-14 flex justify-center">
-          <button className="px-10 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full shadow-lg shadow-primary/25 transition-all duration-200 active:scale-95 text-base flex items-center gap-2">
-            <span>Book Service Now</span>
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </div>
+        <Link href="/service">
+          <div className="mt-14 flex justify-center">
+            <button className="px-10 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full shadow-lg shadow-primary/25 transition-all duration-200 active:scale-95 text-base flex items-center gap-2">
+              <span>Book Service Now</span>
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </Link>
       </div>
     </section>
   );

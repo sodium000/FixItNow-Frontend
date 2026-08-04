@@ -26,12 +26,15 @@ export function BookingsTable({
   reviewedIds = new Set(),
 }: BookingsTableProps) {
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [selectedStatus, setSelectedStatus] = React.useState<BookingStatus | "ALL">("ALL");
+  const [selectedStatus, setSelectedStatus] = React.useState<
+    BookingStatus | "ALL"
+  >("ALL");
 
   // Filter bookings based on search & selected status
   const filteredBookings = React.useMemo(() => {
     return bookings.filter((b) => {
-      const matchesStatus = selectedStatus === "ALL" || b.status === selectedStatus;
+      const matchesStatus =
+        selectedStatus === "ALL" || b.status === selectedStatus;
       const q = searchQuery.toLowerCase().trim();
       if (!q) return matchesStatus;
 
@@ -55,7 +58,7 @@ export function BookingsTable({
   const statusCounts = {
     ALL: bookings.length,
     PENDING: bookings.filter((b) => b.status === "PENDING").length,
-    ACCEPTED: bookings.filter((b) => b.status === "ACCEPTED").length,
+    ACCEPT: bookings.filter((b) => b.status === "ACCEPT").length,
     COMPLETED: bookings.filter((b) => b.status === "COMPLETED").length,
     CANCELLED: bookings.filter((b) => b.status === "CANCELLED").length,
   };
@@ -76,7 +79,7 @@ export function BookingsTable({
         </div>
 
         <div className="flex flex-wrap gap-1 text-xs">
-          {(["ALL", "PENDING", "ACCEPTED", "COMPLETED"] as const).map((st) => (
+          {(["ALL", "PENDING", "ACCEPT", "COMPLETED"] as const).map((st) => (
             <button
               key={st}
               type="button"
@@ -109,8 +112,12 @@ export function BookingsTable({
             <thead className="bg-muted/50 text-[11px] uppercase tracking-wider text-muted-foreground border-b border-border">
               <tr>
                 <th className="px-5 py-3.5 font-bold">Service Info</th>
-                {showCustomer && <th className="px-5 py-3.5 font-bold">Customer</th>}
-                {showTechnician && <th className="px-5 py-3.5 font-bold">Technician</th>}
+                {showCustomer && (
+                  <th className="px-5 py-3.5 font-bold">Customer</th>
+                )}
+                {showTechnician && (
+                  <th className="px-5 py-3.5 font-bold">Technician</th>
+                )}
                 <th className="px-5 py-3.5 font-bold">Scheduled Time</th>
                 <th className="px-5 py-3.5 font-bold">Location</th>
                 <th className="px-5 py-3.5 font-bold">Amount</th>
@@ -120,7 +127,10 @@ export function BookingsTable({
             </thead>
             <tbody className="divide-y divide-border">
               {filteredBookings.map((booking) => (
-                <tr key={booking.id} className="hover:bg-muted/40 transition-colors">
+                <tr
+                  key={booking.id}
+                  className="hover:bg-muted/40 transition-colors"
+                >
                   {/* Service Info with Icon */}
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
@@ -177,7 +187,7 @@ export function BookingsTable({
                           </p>
                           {booking.technician?.avgRating && (
                             <p className="text-[10px] text-amber-500 font-bold">
-                              ★ {booking.technician.avgRating}
+                              ★ {booking.technician?.avgRating}
                             </p>
                           )}
                         </div>
@@ -231,7 +241,9 @@ export function BookingsTable({
                           </button>
                         )
                       ) : (
-                        <span className="text-[10px] text-muted-foreground">—</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          —
+                        </span>
                       )}
                     </td>
                   )}

@@ -119,11 +119,11 @@ export default function ServicesGrid() {
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-extrabold text-foreground tracking-tight leading-tight">
-            Professional Air Conditioning Solutions
+            Cooling Solved. Fast, Certified, and Built to Last
           </h1>
 
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            We deliver reliable, fast, and certified AC services to keep your
+            We deliver reliable, fast, and certified All services to keep your
             home cool, energy-efficient, and comfortable all year round.
           </p>
         </section>
@@ -159,16 +159,16 @@ export default function ServicesGrid() {
                 </div>
               </div>
 
-            <div className="relative rounded-2xl overflow-hidden h-90 w-full mt-6 border border-border/50 bg-muted/30">
-                  <Image
+              <div className="relative rounded-2xl overflow-hidden h-90 w-full mt-6 border border-border/50 bg-muted/30">
+                <Image
                   src={PRIMARY_SERVICES[0].image}
                   alt={PRIMARY_SERVICES[0].title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                    unoptimized
-                  />
-                </div>
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  unoptimized
+                />
+              </div>
             </div>
 
             {/* Card 2: Maintenance Call-To-Action */}
@@ -229,8 +229,7 @@ export default function ServicesGrid() {
               >
                 <div className="space-y-4">
                   <div className="p-3 w-fit rounded-2xl bg-primary/10 text-primary font-bold border border-primary/20">
-                    <span className="material-symbols-outlined text-2xl">
-                    </span>
+                    <span className="material-symbols-outlined text-2xl"></span>
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-card-foreground group-hover:text-primary transition-colors">

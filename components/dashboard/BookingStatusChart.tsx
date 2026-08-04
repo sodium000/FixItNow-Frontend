@@ -12,7 +12,7 @@ export function BookingStatusChart({ bookings }: BookingStatusChartProps) {
   const completed = safeBookings.filter(
     (b) => b?.status === "COMPLETED",
   ).length;
-  const accepted = safeBookings.filter((b) => b?.status === "ACCEPTED").length;
+  const accepted = safeBookings.filter((b) => b?.status === "ACCEPT").length;
   const pending = safeBookings.filter((b) => b?.status === "PENDING").length;
   const cancelled = safeBookings.filter(
     (b) => b?.status === "CANCELLED",

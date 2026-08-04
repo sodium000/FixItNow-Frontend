@@ -11,7 +11,20 @@ interface CustomerBookingChartProps {
 export function CustomerBookingChart({ bookings }: CustomerBookingChartProps) {
   // Group bookings by month
   const monthlyData = React.useMemo(() => {
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     return months.map((month) => {
       // Find matching bookings for month
       const monthBookings = bookings.filter((b) => {
@@ -60,7 +73,7 @@ export function CustomerBookingChart({ bookings }: CustomerBookingChartProps) {
       {/* SVG Spending & Volume Bar Chart */}
       <div className="overflow-x-auto pb-2">
         <svg
-          viewBox="0 0 500 160"
+          viewBox="0 0 780 160"
           className="w-full h-auto max-h-[200px]"
           aria-label="Customer booking chart"
         >
@@ -87,9 +100,9 @@ export function CustomerBookingChart({ bookings }: CustomerBookingChartProps) {
 
           {/* Background grid line */}
           <line
-            x1="20"
+            x1="10"
             y1="120"
-            x2="480"
+            x2="770"
             y2="120"
             stroke="currentColor"
             className="text-border"
@@ -97,9 +110,9 @@ export function CustomerBookingChart({ bookings }: CustomerBookingChartProps) {
           />
 
           {monthlyData.map((d, i) => {
-            const barWidth = 36;
-            const gap = 42;
-            const x = 40 + i * (barWidth + gap);
+            const barWidth = 28;
+            const gap = 37;
+            const x = 14 + i * (barWidth + gap);
             const height = Math.max((d.spent / maxSpent) * 90, 12);
             const y = 120 - height;
 

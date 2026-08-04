@@ -5,7 +5,8 @@ import axios from "axios";
 import { cookies } from "next/headers";
 import type { Booking, BookingStatus } from "@/lib/types";
 
-const getApiUrl = () => process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const getApiUrl = () =>
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 async function getAuthHeaders() {
   const cookieStore = await cookies();
@@ -129,7 +130,9 @@ function extractBookings(raw: any): Booking[] {
   }));
 }
 
-export const becomeTechnicianAction = async (payload: BecomeTechnicianPayload) => {
+export const becomeTechnicianAction = async (
+  payload: BecomeTechnicianPayload,
+) => {
   try {
     const { accessToken, headers } = await getAuthHeaders();
 
@@ -141,9 +144,13 @@ export const becomeTechnicianAction = async (payload: BecomeTechnicianPayload) =
       };
     }
 
-    const res = await axios.put(`${getApiUrl()}/api/technician/profile`, payload, {
-      headers,
-    });
+    const res = await axios.put(
+      `${getApiUrl()}/api/technician/profile`,
+      payload,
+      {
+        headers,
+      },
+    );
 
     return {
       success: true,
@@ -267,9 +274,13 @@ export const updateTechnicianProfileAction = async (
       };
     }
 
-    const res = await axios.put(`${getApiUrl()}/api/technician/profile`, payload, {
-      headers,
-    });
+    const res = await axios.put(
+      `${getApiUrl()}/api/technician/profile`,
+      payload,
+      {
+        headers,
+      },
+    );
 
     return {
       success: true,
@@ -293,7 +304,9 @@ export const updateTechnicianProfileAction = async (
   }
 };
 
-export const updateTechnicianAvailabilityAction = async (isAvailable: boolean) => {
+export const updateTechnicianAvailabilityAction = async (
+  isAvailable: boolean,
+) => {
   try {
     const { accessToken, headers } = await getAuthHeaders();
 
@@ -375,6 +388,8 @@ export const updateTechnicianBookingStatusAction = async (
   status: BookingStatus,
 ) => {
   try {
+    console.log(bookingId, status);
+
     const { accessToken, headers } = await getAuthHeaders();
 
     if (!accessToken) {

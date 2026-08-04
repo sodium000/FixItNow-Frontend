@@ -11,7 +11,6 @@ export const RegistrationHandle = async (data: RegUserType) => {
       phone: number,
     };
 
-    console.log("payload", payload);
 
     const res = await axiosInstance.post("/api/auth/register", payload);
     return { success: true, data: res.data };

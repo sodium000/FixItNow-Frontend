@@ -14,7 +14,7 @@ const ROLE_DASHBOARD_MAP: Record<string, string> = {
   CUSTOMER: "/dashboard/customer",
 };
 
-// Decode JWT payload (base64url) — no signature verification needed in middleware
+// Decode JWT payload (base64url) — no signature verification needed in proxy
 function decodeJwtPayload(token: string): Record<string, any> | null {
   try {
     const parts = token.split(".");
@@ -41,7 +41,7 @@ function isRoleSubDashboard(pathname: string): boolean {
   );
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get("accessToken")?.value;
   const refreshToken = request.cookies.get("refreshToken")?.value;
@@ -159,7 +159,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
       }
     } catch (error) {
-      console.log("Middleware token refresh failed:", error);
+      console.log("Proxy token refresh failed:", error);
       if (isProtectedRoute) {
         return NextResponse.redirect(new URL("/login", request.url));
       }

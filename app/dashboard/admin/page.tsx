@@ -172,7 +172,9 @@ export default function AdminDashboardPage() {
     staleTime: 1000 * 30,
   });
 
-  const rawBookings = bookingsRes?.data || [];
+  console.log(bookingsRes?.data.Allbooking);
+
+  const rawBookings = bookingsRes?.data.Allbooking || [];
   const bookingsList: Booking[] =
     rawBookings.length > 0 ? rawBookings : MOCK_BOOKINGS;
 
@@ -1126,7 +1128,7 @@ export default function AdminDashboardPage() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-lg font-bold text-foreground">
-                  All Platform Bookings (/api/admin/bookings)
+                  All Platform Bookings
                 </h2>
                 <p className="text-xs text-muted-foreground">
                   Full booking records with customer, technician, service, and
@@ -1153,7 +1155,6 @@ export default function AdminDashboardPage() {
           </section>
         )}
 
-        {/* Admin Profile Photo Modal */}
         {isPhotoModalOpen && (
           <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">

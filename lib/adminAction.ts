@@ -287,21 +287,6 @@ export const getAdminBookingsAction = async (page = 1, limit = 10) => {
     });
 
     const raw = res.data?.data || res.data;
-    let bookings: Booking[] = [];
-
-    if (Array.isArray(raw)) {
-      bookings = raw;
-    } else if (Array.isArray(raw?.bookings)) {
-      bookings = raw.bookings;
-    } else if (Array.isArray(raw?.result)) {
-      bookings = raw.result;
-    } else if (Array.isArray(res.data?.bookings)) {
-      bookings = res.data.bookings;
-    } else if (Array.isArray(res.data?.result)) {
-      bookings = res.data.result;
-    } else if (Array.isArray(res.data)) {
-      bookings = res.data;
-    }
 
     const meta: PaginationMeta = raw?.meta ||
       raw?.pagination ||
@@ -309,13 +294,13 @@ export const getAdminBookingsAction = async (page = 1, limit = 10) => {
       res.data?.pagination || {
         page,
         limit,
-        total: bookings.length,
-        totalPages: Math.ceil(bookings.length / limit) || 1,
+        total: raw.length,
+        totalPages: Math.ceil(raw.length / limit) || 1,
       };
 
     return {
       success: true,
-      data: bookings,
+      data: raw,
       meta,
     };
   } catch (error: any) {

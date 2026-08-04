@@ -13,6 +13,7 @@ import {
   ArrowRight,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -100,7 +101,9 @@ export default function PricingSection() {
   const gridRef = React.useRef<HTMLDivElement>(null);
   const cardRefs = React.useRef<(HTMLDivElement | null)[]>([]);
 
-  const [billingCycle, setBillingCycle] = React.useState<"monthly" | "yearly">("monthly");
+  const [billingCycle, setBillingCycle] = React.useState<"monthly" | "yearly">(
+    "monthly",
+  );
 
   // --------------------------------------------------------------------------
   // GSAP ENTRANCE ANIMATIONS
@@ -122,7 +125,7 @@ export default function PricingSection() {
               trigger: headerRef.current,
               start: "top 85%",
             },
-          }
+          },
         );
       }
 
@@ -140,7 +143,7 @@ export default function PricingSection() {
               trigger: toggleRef.current,
               start: "top 85%",
             },
-          }
+          },
         );
       }
 
@@ -161,7 +164,7 @@ export default function PricingSection() {
               trigger: gridRef.current,
               start: "top 80%",
             },
-          }
+          },
         );
       }
     }, containerRef);
@@ -171,12 +174,10 @@ export default function PricingSection() {
 
   return (
     <section
-     ref={containerRef}
+      ref={containerRef}
       className="relative pb-5 min-h-[92vh] bg-transparent text-foreground font-sans overflow-hidden selection:bg-primary/20 selection:text-primary"
     >
-
       <div className="relative z-10 max-w-9/12 mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* HEADER SECTION */}
         <div ref={headerRef} className="text-center max-w-2xl mx-auto my-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary font-semibold text-xs tracking-wider uppercase border border-primary/20 backdrop-blur-sm">
@@ -189,7 +190,8 @@ export default function PricingSection() {
           </h2>
 
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Choose the right AC service package for your needs with upfront pricing and zero hidden fees.
+            Choose the right AC service package for your needs with upfront
+            pricing and zero hidden fees.
           </p>
         </div>
 
@@ -287,7 +289,8 @@ export default function PricingSection() {
                       {price}
                     </span>
                     <span className="text-xs font-semibold opacity-80">
-                      /{billingCycle === "monthly" ? "mo" : "mo (billed yearly)"}
+                      /
+                      {billingCycle === "monthly" ? "mo" : "mo (billed yearly)"}
                     </span>
                   </div>
 
@@ -304,7 +307,10 @@ export default function PricingSection() {
                     </h4>
                     <ul className="space-y-3.5">
                       {plan.features.map((feature, fIdx) => (
-                        <li key={fIdx} className="flex items-start gap-3 text-sm">
+                        <li
+                          key={fIdx}
+                          className="flex items-start gap-3 text-sm"
+                        >
                           <span className="mt-0.5 shrink-0 w-5 h-5 rounded-full bg-primary/15 text-primary flex items-center justify-center">
                             <Check className="w-3 h-3 stroke-3" />
                           </span>
@@ -316,19 +322,20 @@ export default function PricingSection() {
                     </ul>
                   </div>
 
-                  {/* CTA Button */}
-                  <div className="pt-4">
-                    <button
-                      className={`w-full py-3.5 px-6 rounded-full font-bold text-sm transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 ${
-                        plan.isPopular
-                          ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25"
-                          : "border-2 border-primary/80 text-primary hover:bg-primary hover:text-primary-foreground"
-                      }`}
-                    >
-                      <span>{plan.ctaText}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <Link href="/subscription">
+                    <div className="pt-4">
+                      <button
+                        className={`w-full py-3.5 px-6 rounded-full font-bold text-sm transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 ${
+                          plan.isPopular
+                            ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25"
+                            : "border-2 border-primary/80 text-primary hover:bg-primary hover:text-primary-foreground"
+                        }`}
+                      >
+                        <span>{plan.ctaText}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </Link>
                 </div>
               </div>
             );

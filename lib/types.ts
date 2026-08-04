@@ -1,5 +1,10 @@
 export type Role = "CUSTOMER" | "TECHNICIAN" | "ADMIN";
-export type BookingStatus = "PENDING" | "ACCEPTED" | "COMPLETED" | "CANCELLED";
+export type BookingStatus =
+  | "PENDING"
+  | "ACCEPT"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "DECLINE";
 
 export interface User {
   id: string;

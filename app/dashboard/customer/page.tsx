@@ -98,7 +98,9 @@ export default function CustomerDashboardPage() {
     });
     setIsReviewSubmitting(false);
     if (res.success) {
-      toast.success("Review submitted! Thank you for your feedback. ⭐", { id: toastId });
+      toast.success("Review submitted! Thank you for your feedback. ⭐", {
+        id: toastId,
+      });
       setReviewedIds((prev) => new Set([...prev, reviewBookingId]));
       closeReviewModal();
       queryClient.invalidateQueries({ queryKey: ["myBookings"] });
@@ -150,35 +152,11 @@ export default function CustomerDashboardPage() {
     (b) => b.status === "PENDING",
   ).length;
   const acceptedCount = customerBookings.filter(
-    (b) => b.status === "ACCEPTED",
+    (b) => b.status === "ACCEPT",
   ).length;
   const totalSpent = customerBookings
-    .filter((b) => b.status === "COMPLETED" || b.status === "ACCEPTED")
+    .filter((b) => b.status === "COMPLETED" || b.status === "ACCEPT")
     .reduce((sum, b) => sum + (b.totalAmount || 0), 0);
-
-  const handleBecomeTechnician = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setTechError("");
-    setIsTechSubmitting(true);
-    const toastId = toast.loading("Creating your technician profile...");
-    const res = await becomeTechnicianAction({
-      name: techForm.name || user?.name || "",
-      phone: techForm.phone || user?.phone || "",
-      experienceYrs: techForm.experienceYrs,
-      hourlyRate: techForm.hourlyRate,
-      address: techForm.address,
-      city: techForm.city,
-    });
-    setIsTechSubmitting(false);
-    if (res.success) {
-      toast.success("🎉 Technician profile created! You are now registered as a technician.", { id: toastId });
-      setIsModalOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["myProfile"] });
-    } else {
-      toast.error(res.error || "Failed to create technician profile.", { id: toastId });
-      setTechError(res.error || "Failed to create technician profile.");
-    }
-  };
 
   const isLoading = isProfileLoading;
 
@@ -254,7 +232,6 @@ export default function CustomerDashboardPage() {
             </Link>
           </Button>
         </div>
-
 
         {/* Profile Card — Real Data from /api/auth/me */}
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
@@ -536,142 +513,6 @@ export default function CustomerDashboardPage() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-
-            <form onSubmit={handleBecomeTechnician} className="space-y-3">
-              {/* Name */}
-              <div className="space-y-1.5">
-                <Label htmlFor="techName">Full Name</Label>
-                <Input
-                  id="techName"
-                  required
-                  placeholder={user?.name || "John Doe"}
-                  value={techForm.name || user?.name || ""}
-                  onChange={(e) =>
-                    setTechForm((p) => ({ ...p, name: e.target.value }))
-                  }
-                />
-              </div>
-
-              {/* Phone */}
-              <div className="space-y-1.5">
-                <Label htmlFor="techPhone">Phone Number</Label>
-                <Input
-                  id="techPhone"
-                  type="tel"
-                  required
-                  placeholder={user?.phone || "01XXXXXXXXX"}
-                  value={techForm.phone || user?.phone || ""}
-                  onChange={(e) =>
-                    setTechForm((p) => ({ ...p, phone: e.target.value }))
-                  }
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                {/* Experience */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="experienceYrs">Experience (yrs)</Label>
-                  <Input
-                    id="experienceYrs"
-                    type="number"
-                    min={0}
-                    required
-                    value={techForm.experienceYrs}
-                    onChange={(e) =>
-                      setTechForm((p) => ({
-                        ...p,
-                        experienceYrs: Number(e.target.value),
-                      }))
-                    }
-                  />
-                </div>
-
-                {/* Hourly Rate */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="hourlyRate">Hourly Rate (৳)</Label>
-                  <Input
-                    id="hourlyRate"
-                    type="number"
-                    min={0}
-                    required
-                    value={techForm.hourlyRate}
-                    onChange={(e) =>
-                      setTechForm((p) => ({
-                        ...p,
-                        hourlyRate: Number(e.target.value),
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Address */}
-              <div className="space-y-1.5">
-                <Label htmlFor="techAddress">Service Area Address</Label>
-                <Input
-                  id="techAddress"
-                  required
-                  value={techForm.address}
-                  onChange={(e) =>
-                    setTechForm((p) => ({ ...p, address: e.target.value }))
-                  }
-                  placeholder="123 Main St, Area"
-                />
-              </div>
-
-              {/* City */}
-              <div className="space-y-1.5">
-                <Label htmlFor="techCity">City</Label>
-                <Input
-                  id="techCity"
-                  required
-                  value={techForm.city}
-                  onChange={(e) =>
-                    setTechForm((p) => ({ ...p, city: e.target.value }))
-                  }
-                />
-              </div>
-
-              {/* Error */}
-              {techError && (
-                <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  {techError}
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex gap-3 pt-1">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  disabled={isTechSubmitting}
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    setTechError("");
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1 gap-2"
-                  disabled={isTechSubmitting}
-                >
-                  {isTechSubmitting ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />{" "}
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-3.5 h-3.5" /> Register Now
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
           </div>
         </div>
       )}
