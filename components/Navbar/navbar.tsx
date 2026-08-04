@@ -15,7 +15,6 @@ import {
   LogOut,
   LayoutDashboard,
   ChevronDown,
-  Sparkles,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -29,6 +28,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getMyProfileAction, type UserProfile } from "@/lib/profileAction";
 import { logoutUser } from "@/app/(auth)/login/loginfuntion";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 interface NavItem {
   label: string;
@@ -411,7 +411,7 @@ export default function Navbar() {
                 className="flex items-center gap-2.5 rounded-full border border-border bg-card/90 px-3 py-1.5 shadow-sm hover:border-primary/50 transition-all cursor-pointer"
               >
                 {userProfile.photoUrl ? (
-                  <img
+                  <Image
                     src={userProfile.photoUrl}
                     alt={userProfile.name}
                     className="h-7 w-7 rounded-full object-cover border border-primary/30"
@@ -421,7 +421,7 @@ export default function Navbar() {
                     {initials}
                   </div>
                 )}
-                <span className="text-xs font-bold text-foreground max-w-[110px] truncate">
+                <span className="text-xs font-bold text-foreground max-w-27.5 truncate">
                   {userProfile.name}
                 </span>
                 <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
@@ -434,7 +434,7 @@ export default function Navbar() {
                     {/* User Info Header */}
                     <div className="flex items-center gap-3 pb-3 border-b border-border">
                       {userProfile.photoUrl ? (
-                        <img
+                        <Image
                           src={userProfile.photoUrl}
                           alt={userProfile.name}
                           className="h-10 w-10 rounded-xl object-cover border border-border shrink-0"
@@ -510,7 +510,7 @@ export default function Navbar() {
             size="sm"
             className="group relative h-9 px-5 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-sm transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98] outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <Link href="/booking">
+            <Link href="/service">
               <CalendarCheck2 className="mr-2 h-4 w-4 transition-transform group-hover:rotate-6" />
               <span>Book a Service</span>
             </Link>
@@ -551,7 +551,7 @@ export default function Navbar() {
                       </p>
                     </div>
                   </div>
-                  <SheetClose asChild nativeButton>
+                  <SheetClose asChild nativeButton={false}>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -567,7 +567,7 @@ export default function Navbar() {
                 {userProfile && (
                   <div className="mx-6 mt-4 p-4 rounded-2xl bg-secondary/50 border border-border flex items-center gap-3">
                     {userProfile.photoUrl ? (
-                      <img
+                      <Image 
                         src={userProfile.photoUrl}
                         alt={userProfile.name}
                         className="h-10 w-10 rounded-full object-cover border border-primary/30 shrink-0"
@@ -603,7 +603,7 @@ export default function Navbar() {
                         : pathname.startsWith(item.href);
 
                     return (
-                      <SheetClose asChild key={item.label}>
+                      <SheetClose asChild nativeButton={false} key={item.label}>
                         <Link
                           href={item.href}
                           className={`mobile-nav-item group flex items-center justify-between rounded-xl p-3 text-base transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring ${
@@ -634,7 +634,7 @@ export default function Navbar() {
                   })}
 
                   {userProfile && (
-                    <SheetClose asChild>
+                    <SheetClose asChild nativeButton={false}>
                       <Link
                         href="/dashboard/customer"
                         className="mobile-nav-item group flex items-center justify-between rounded-xl p-3 text-base font-medium text-foreground hover:bg-accent transition-all duration-200"

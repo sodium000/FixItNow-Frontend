@@ -174,7 +174,7 @@ export default function AboutSection() {
         className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-background via-background/40 to-transparent z-0"
       />
 
-      <div className="max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8 space-y-16 relative z-10">
+      <div className="w-full max-w-full sm:max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8 space-y-16 relative z-10">
         {/* =========================================================================
             TOP GRID: IMAGES (LEFT) + CONTENT (RIGHT)
            ========================================================================= */}
@@ -185,7 +185,7 @@ export default function AboutSection() {
               {/* Main Image */}
               <div className="relative h-95 sm:h-115 w-full rounded-[32px] overflow-hidden border-2 border-slate-800 shadow-2xl">
                 <Image
-                  src=""
+                  src="/service.jpg"
                   alt="Certified AC Technician at work"
                   fill
                   className="object-cover"

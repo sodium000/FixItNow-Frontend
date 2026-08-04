@@ -100,8 +100,8 @@ export function DashboardSidebar({
   );
 
   return (
-    <aside className="flex h-full w-64 shrink-0 flex-col border-r border-border bg-sidebar">
-      <div className="border-b border-border p-5">
+    <aside className="flex mt-20 min-h-auto w-full max-w-full shrink-0 flex-col border-b border-border bg-sidebar lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:max-w-[18rem] lg:border-b-0 lg:border-r lg:overflow-y-auto">
+      <div className="border-b border-border p-5 lg:border-b lg:border-r-0">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Wrench className="h-4 w-4" />
@@ -147,6 +147,7 @@ export function DashboardSidebar({
 
       <div className="border-t border-border p-4">
         <div className="mb-3 flex items-center gap-3 rounded-xl bg-muted/50 p-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={
               userInfo.photoUrl ||

@@ -141,7 +141,7 @@ export default function HeroBanner() {
       ref={containerRef}
       className="relative min-h-[92vh] pt-32 pb-16 lg:pt-40 lg:pb-24 overflow-hidden bg-transparent flex items-center"
     >
-      <div className="mx-auto max-w-11/12 px-4 sm:px-6 lg:px-8 w-full relative z-10">
+      <div className="mx-auto w-full max-w-full sm:max-w-11/12 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           {/* LEFT COLUMN: HERO HEADLINE + CONVERSION SEARCH */}
           <div className="lg:col-span-7 flex flex-col justify-center">

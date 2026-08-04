@@ -16,6 +16,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -166,7 +167,7 @@ export default function EmergencyHeroSection() {
         className="relative min-h-[92vh] pt-20 bg-transparent text-foreground font-sans overflow-hidden selection:bg-primary/20 selection:text-primary"
       >
         {/* SECTION WRAPPER */}
-        <div className="relative z-10 max-w-10/12 mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-full sm:max-w-10/12 relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* =========================================================================
                 LEFT COLUMN: HEADER, FEATURES & CTAS (7 Columns)
@@ -219,10 +220,12 @@ export default function EmergencyHeroSection() {
 
               {/* CTA Buttons Row */}
               <div className="flex flex-wrap items-center gap-5 pt-4">
-                <button className="px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full shadow-lg shadow-primary/25 transition-all duration-200 active:scale-95 text-base flex items-center gap-2">
-                  <span>More About Us</span>
-                  <ArrowRight className="w-5 h-5" />
-                </button>
+                <Link href="/about">
+                  <button className="px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full shadow-lg shadow-primary/25 transition-all duration-200 active:scale-95 text-base flex items-center gap-2">
+                    <span>More About Us</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                </Link>
 
                 {/* Watch Our Story Trigger */}
                 <button
@@ -251,9 +254,10 @@ export default function EmergencyHeroSection() {
                 {/* Primary Main Image Frame */}
                 <div className="relative w-full aspect-4/4.5 rounded-[36px] overflow-hidden shadow-2xl border border-border/50 bg-card">
                   <Image
-                    src="/finance-hero.png"
+                    src="/service2.webp"
                     alt="Technician repairing an AC unit"
                     fill
+                    sizes="(max-width: 768px) 100vw, 40vw"
                     className="object-cover object-center"
                     priority
                   />
@@ -275,16 +279,6 @@ export default function EmergencyHeroSection() {
                   <div className="text-[9px] leading-tight uppercase font-extrabold tracking-wider mt-1 opacity-90">
                     Years Experience
                   </div>
-                </div>
-
-                {/* Inset Secondary Image (Floating Card - Bottom Right Overlay) */}
-                <div className="absolute -top-6 -left-4 sm:-left-8 z-20 w-48 sm:w-56 aspect-4/3 rounded-2xl overflow-hidden shadow-2xl border-4 border-background bg-card hidden sm:block">
-                  <Image
-                    src="/finance-hero.png"
-                    alt="AC Service Technicians at Work"
-                    fill
-                    className="object-cover"
-                  />
                 </div>
               </div>
             </div>

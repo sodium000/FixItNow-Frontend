@@ -151,9 +151,10 @@ export default function FooterSection() {
             >
               <div className="relative w-56 h-56 sm:w-64 sm:h-64 rounded-full bg-blue-500/30 border-4 border-white/20 backdrop-blur-md flex items-center justify-center shadow-2xl overflow-hidden">
                 <Image
-                  src=""
+                  src="/footer.avif"
                   alt="Technician Expert"
                   fill
+                  sizes="(max-width: 640px) 14rem, 16rem"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-blue-900/60 via-transparent to-transparent" />
@@ -179,7 +180,7 @@ export default function FooterSection() {
                   <Flame className="w-6 h-6 text-slate-950 fill-slate-950" />
                 </div>
                 <span className="text-2xl font-extrabold italic tracking-tight text-white">
-                  CoolFix
+                  Fix It Now
                 </span>
               </div>
 

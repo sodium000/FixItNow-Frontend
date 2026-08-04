@@ -107,7 +107,7 @@ export default function ServicesGrid() {
       {/* =========================================================================
           MAIN CANVAS CONTENT
          ========================================================================= */}
-      <main className="relative z-10 pt-10 pb-32 max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="relative z-10 pt-10 pb-32 w-full max-w-full sm:max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
         {/* HERO BANNER SECTION */}
         <section
           ref={heroRef}

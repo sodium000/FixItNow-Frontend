@@ -32,7 +32,7 @@ export function DashboardShell({ children, defaultRole = "CUSTOMER" }: Dashboard
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex bg-background">
+    <div className="min-h-screen flex flex-col bg-background lg:flex-row">
       <DashboardSidebar
         role={role}
         userName={activeUser.name}

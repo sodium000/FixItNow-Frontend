@@ -177,7 +177,7 @@ export default function PricingSection() {
       ref={containerRef}
       className="relative pb-5 min-h-[92vh] bg-transparent text-foreground font-sans overflow-hidden selection:bg-primary/20 selection:text-primary"
     >
-      <div className="relative z-10 max-w-9/12 mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 w-full max-w-full sm:max-w-9/12 mx-auto px-4 sm:px-6 lg:px-8">
         {/* HEADER SECTION */}
         <div ref={headerRef} className="text-center max-w-2xl mx-auto my-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary font-semibold text-xs tracking-wider uppercase border border-primary/20 backdrop-blur-sm">

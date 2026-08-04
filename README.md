@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fix It Now
+
+Fix It Now is a responsive Next.js 16 website for home service booking, repairs, and subscription-based AC maintenance. The app uses React, Tailwind CSS, GSAP animations, and client/server hooks to deliver a polished booking experience across desktop and mobile.
+
+## What’s Included
+
+- `app/page.tsx` — landing page with hero, service grid, why-us section, pricing, emergency CTA, testimonials, FAQ, and footer
+- `app/service/page.tsx` — service marketplace with filtering, dynamic service cards, mobile-friendly sidebar, and search overlay
+- `app/about/page.tsx` — about/feature story section with responsive imagery and statistics
+- `app/booking/page.tsx` — booking workflow and service cards with responsive layout
+- `app/dashboard/*` — authenticated user dashboard pages for admin, customer, and technician views
+- `components/` — reusable UI sections, responsive hero/banner, testimonials, footer, FAQ, pricing, and service cards
+- `lib/` — helper actions, Axios instance, auth utilities, and query provider
+
+## Responsive Improvements
+
+This repository includes responsive fixes for mobile and tablet layouts. Key changes include:
+
+- root page wrappers set to `w-full max-w-full sm:max-w-...` to avoid overly narrow mobile layouts
+- global body overflow hidden to prevent horizontal scroll from decorative absolute elements
+- responsive Tailwind classes on major sections so grids collapse on small screens and hero content stacks vertically
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` — start development server
+- `npm run build` — production build
+- `npm run start` — start production server
+- `npm run lint` — run ESLint
 
-## Learn More
+## Notes
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- This app uses `next/image` for optimized images and `gsap` for scroll-triggered animations.
+- The project uses Tailwind CSS via `@tailwindcss/postcss` and `shadcn` UI components.
+- If you add new page sections, use responsive Tailwind utilities such as `sm:`, `md:`, and `lg:` to ensure layout works across devices.

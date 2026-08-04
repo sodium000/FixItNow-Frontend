@@ -7,6 +7,7 @@ import ServicesGrid from "@/components/serviceSection/ServicesGrid";
 import PricingSection from "@/components/subscription/paymentSubscripption";
 import WhyUsSection from "@/components/WhyusSection/whyussection";
 import FooterSection from "@/components/Footer/FooterSection";
+import Navbar from "@/components/Navbar/navbar";
 
 
 
@@ -41,6 +42,7 @@ export default function Home() {
       />
 
       <div className="relative z-10">
+            <Navbar></Navbar>
         <HeroBanner />
         <ServicesGrid />
         <WhyUsSection></WhyUsSection>

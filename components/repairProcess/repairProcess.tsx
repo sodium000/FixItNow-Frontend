@@ -208,7 +208,7 @@ export default function RepairProcessSection() {
       {/* =========================================================================
           SECTION CONTENT
          ========================================================================= */}
-      <div className="relative z-10 max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 w-full max-w-full sm:max-w-11/12 mx-auto px-4 sm:px-6 lg:px-8">
         {/* HEADER SECTION */}
         <div
           ref={headerRef}

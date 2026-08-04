@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import * as React from "react";
@@ -11,7 +12,6 @@ import {
   Sparkles,
   ArrowUpDown,
   UserCheck,
-  Tag,
   Clock,
   ShieldCheck,
   ArrowRight,
@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { axiosInstance } from "@/lib/axios";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);

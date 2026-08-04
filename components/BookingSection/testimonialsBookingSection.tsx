@@ -143,7 +143,7 @@ export default function TestimonialsBookingSection() {
       ref={containerRef}
       className="relative w-full py-16 text-slate-900 font-sans overflow-hidden"
     >
-      <div className="max-w-9/12 mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-full sm:max-w-9/12 mx-auto px-4 sm:px-6 lg:px-8">
         {/* =========================================================================
             MAIN COMBINED CARD (TESTIMONIALS + BOOKING FORM)
            ========================================================================= */}
@@ -159,13 +159,12 @@ export default function TestimonialsBookingSection() {
             <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
               <Image
                 src="/"
-                alt="AC Technician background"
+                alt="AC Technician background" 
                 fill
+                sizes="100vw"
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-linear-to-t from-slate-950 via-slate-950/80 to-slate-950/40" />
             </div>
-
             <div className="relative z-10 space-y-6">
               {/* Tag Header */}
               <div className="inline-flex items-center gap-2 text-sky-400 font-bold text-xs uppercase tracking-widest">
@@ -193,6 +192,7 @@ export default function TestimonialsBookingSection() {
                         src={activeTestimonial.avatar}
                         alt={activeTestimonial.name}
                         fill
+                        sizes="56px"
                         className="object-cover"
                         unoptimized
                       />
@@ -223,6 +223,7 @@ export default function TestimonialsBookingSection() {
                           src={t.avatar}
                           alt={t.name}
                           fill
+                          sizes="32px"
                           className="object-cover"
                           unoptimized
                         />

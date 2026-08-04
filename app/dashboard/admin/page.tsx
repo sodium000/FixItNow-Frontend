@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import * as React from "react";
@@ -8,17 +11,15 @@ import {
   DollarSign,
   Plus,
   Trash2,
-  CheckCircle2,
   Camera,
   BarChart3,
-  PieChart,
-  TrendingUp,
+
   ShieldCheck,
-  Mail,
+
   Phone,
   Calendar,
   X,
-  Layers,
+
   ChevronLeft,
   ChevronRight,
   Loader2,
@@ -26,7 +27,7 @@ import {
   UserX,
   Sparkles,
 } from "lucide-react";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
@@ -38,8 +39,6 @@ import { BookingTrendsChart } from "@/components/dashboard/BookingTrendsChart";
 import { BookingsTable } from "@/components/dashboard/BookingsTable";
 import {
   MOCK_USERS,
-  MOCK_TECHNICIANS,
-  MOCK_SERVICE_CATEGORIES,
   MOCK_BOOKINGS,
   MOCK_REVENUE_DATA,
   getTechnicianName,
@@ -66,6 +65,7 @@ import {
   getAllTechnicians,
 } from "@/lib/adminAction";
 import { getMyProfileAction } from "@/lib/profileAction";
+import Image from "next/image";
 
 type AdminTab = "overview" | "users" | "technicians" | "services" | "bookings";
 type ChartFilter = "all" | "revenue" | "status" | "categories" | "trends";
@@ -79,7 +79,7 @@ export default function AdminDashboardPage() {
   // Pagination States
   const [usersPage, setUsersPage] = React.useState(1);
   const [categoriesPage, setCategoriesPage] = React.useState(1);
-  const [bookingsPage, setBookingsPage] = React.useState(1);
+  const [bookingsPage] = React.useState(1);
 
   // Admin Profile Photo State
   const [isPhotoModalOpen, setIsPhotoModalOpen] = React.useState(false);
@@ -145,7 +145,6 @@ export default function AdminDashboardPage() {
     staleTime: 1000 * 30,
   });
 
-  const rawUsers = usersRes?.data || [];
   const usersList: User[] = usersRes?.data?.Alluser ?? [];
   const usersMeta = usersRes?.meta || {
     page: 1,
@@ -165,7 +164,6 @@ export default function AdminDashboardPage() {
   const {
     data: bookingsRes,
     isLoading: isBookingsLoading,
-    refetch: refetchBookings,
   } = useQuery({
     queryKey: ["adminBookings", bookingsPage],
     queryFn: () => getAdminBookingsAction(bookingsPage, 10),
@@ -220,6 +218,7 @@ export default function AdminDashboardPage() {
     ];
 
     bookingsList.forEach((b) => {
+      // eslint-disable-next-line react-hooks/purity
       const d = new Date(b.createdAt || Date.now());
       const monthStr = monthsOrder[d.getMonth()] || "Jan";
 
@@ -621,7 +620,7 @@ export default function AdminDashboardPage() {
                               </span>
                             </div>
                           </td>
-                          <td className="px-4 py-3.5 font-mono text-[11px] text-muted-foreground truncate max-w-[120px]">
+                          <td className="px-4 py-3.5 font-mono text-[11px] text-muted-foreground truncate max-w-30">
                             {user.id}
                           </td>
                           <td className="px-4 py-3.5 text-muted-foreground">
@@ -798,7 +797,7 @@ export default function AdminDashboardPage() {
                         </div>
                         <div className="flex justify-between">
                           <span>Address:</span>
-                          <span className="font-semibold text-foreground truncate max-w-[150px]">
+                          <span className="font-semibold text-foreground truncate max-w-37.5">
                             {address}
                           </span>
                         </div>
@@ -1156,7 +1155,7 @@ export default function AdminDashboardPage() {
         )}
 
         {isPhotoModalOpen && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="fixed inset-0 z-70 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-foreground">
@@ -1181,7 +1180,7 @@ export default function AdminDashboardPage() {
                 className="space-y-4"
               >
                 <div className="flex justify-center">
-                  <img
+                  <Image
                     src={
                       newPhotoUrl ||
                       "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=300&auto=format&fit=crop&q=80"

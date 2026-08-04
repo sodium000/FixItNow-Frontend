@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import * as React from "react";
@@ -24,14 +26,11 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { BookingsTable } from "@/components/dashboard/BookingsTable";
 import { formatCurrency, formatDate } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { CustomerBookingChart } from "@/components/dashboard/CustomerBookingChart";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getMyProfileAction, type UserProfile } from "@/lib/profileAction";
 import { getMyBookingsAction } from "@/app/booking/bookingAction";
 import { createReviewAction } from "@/app/review/reviewAction";
-import { becomeTechnicianAction } from "@/app/technician/technicianAction";
 import { useRouter } from "next/navigation";
 import type { Booking } from "@/lib/types";
 import toast from "react-hot-toast";
@@ -51,17 +50,6 @@ export default function CustomerDashboardPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [successMessage, setSuccessMessage] = React.useState("");
-  const [techError, setTechError] = React.useState("");
-  const [isTechSubmitting, setIsTechSubmitting] = React.useState(false);
-  const [techForm, setTechForm] = React.useState({
-    name: "",
-    phone: "",
-    experienceYrs: 1,
-    hourlyRate: 500,
-    address: "",
-    city: "Dhaka",
-  });
 
   // Review modal state
   const [reviewBookingId, setReviewBookingId] = React.useState<string | null>(
@@ -212,6 +200,7 @@ export default function CustomerDashboardPage() {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+
 
   return (
     <DashboardShell defaultRole="CUSTOMER">
@@ -364,7 +353,7 @@ export default function CustomerDashboardPage() {
 
       {/* ── Review Modal ── */}
       {reviewBookingId && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-80 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -485,7 +474,7 @@ export default function CustomerDashboardPage() {
 
       {/* Become Technician Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-70 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-5">
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -506,7 +495,6 @@ export default function CustomerDashboardPage() {
                 type="button"
                 onClick={() => {
                   setIsModalOpen(false);
-                  setTechError("");
                 }}
                 className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted transition-colors"
               >
