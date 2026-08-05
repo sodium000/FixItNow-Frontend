@@ -34,6 +34,8 @@ import { createReviewAction } from "@/app/review/reviewAction";
 import { useRouter } from "next/navigation";
 import type { Booking } from "@/lib/types";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "@/lib/utils";
+import Image from "next/image";
 
 // Normalize a booking from API (totalAmount may be a string)
 function normalizeBooking(raw: any): Booking {
@@ -93,8 +95,9 @@ export default function CustomerDashboardPage() {
       closeReviewModal();
       queryClient.invalidateQueries({ queryKey: ["myBookings"] });
     } else {
-      toast.error(res.error || "Failed to submit review.", { id: toastId });
-      setReviewError(res.error || "Failed to submit review.");
+      const reviewErrorText = getErrorMessage(res.error, "Failed to submit review.");
+      toast.error(reviewErrorText, { id: toastId });
+      setReviewError(reviewErrorText);
     }
   };
 
@@ -226,7 +229,9 @@ export default function CustomerDashboardPage() {
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
             {user.photoUrl ? (
-              <img
+              <Image 
+              width={50}
+              height={50}
                 src={user.photoUrl}
                 alt={user.name}
                 className="h-24 w-24 rounded-2xl border-2 border-border object-cover"

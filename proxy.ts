@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -41,11 +42,25 @@ function isRoleSubDashboard(pathname: string): boolean {
   );
 }
 
+// Check whether a JWT-like token is unexpired (uses decoded payload `exp`)
+function isTokenValid(token: string | undefined): boolean {
+  if (!token) return false;
+  const payload = decodeJwtPayload(token);
+  if (!payload) return false;
+  const exp = payload.exp;
+  if (typeof exp === "number") {
+    return exp > Math.floor(Date.now() / 1000);
+  }
+  // If no exp claim, assume valid
+  return true;
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get("accessToken")?.value;
   const refreshToken = request.cookies.get("refreshToken")?.value;
   const isLoggedIn = Boolean(accessToken || refreshToken);
+  const hasValidAccessToken = isTokenValid(accessToken);
 
   const isAuthRoute = AUTH_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
@@ -56,7 +71,10 @@ export async function proxy(request: NextRequest) {
   );
 
   // ── 1. Redirect logged-in users away from auth pages ───────────────────────
-  if (isAuthRoute && isLoggedIn) {
+  // Only redirect away from auth pages when there is a valid (unexpired)
+  // access token. This prevents stale/expired tokens or presence of only a
+  // refresh token from forcing a redirect and lets the refresh flow run.
+  if (isAuthRoute && hasValidAccessToken) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

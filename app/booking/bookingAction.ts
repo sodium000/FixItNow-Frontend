@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { cookies } from "next/headers";
+import { getErrorMessage } from "@/lib/utils";
 
 export interface CreateBookingPayload {
   serviceId: string;
@@ -51,11 +52,7 @@ export const createBookingAction = async (payload: CreateBookingPayload) => {
     );
     return {
       success: false,
-      error:
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        error?.message ||
-        "Failed to create booking.",
+      error: getErrorMessage(error, "Failed to create booking."),
       data: null,
     };
   }
@@ -107,11 +104,7 @@ export const createCheckoutSessionAction = async (bookingId: string) => {
     );
     return {
       success: false,
-      error:
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        error?.message ||
-        "Failed to initiate payment checkout.",
+      error: getErrorMessage(error, "Failed to initiate payment checkout."),
       data: null,
     };
   }
@@ -154,10 +147,7 @@ export const getMyBookingsAction = async () => {
     );
     return {
       success: false,
-      error:
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to fetch bookings.",
+      error: getErrorMessage(error, "Failed to fetch bookings."),
       data: [],
     };
   }

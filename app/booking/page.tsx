@@ -22,11 +22,11 @@ import {
   ArrowRight,
   FileText,
   AlertCircle,
-  Check,
   Loader2,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "@/lib/utils";
 
 import { formatCurrency } from "@/lib/mock-data";
 import {
@@ -38,6 +38,7 @@ import {
   createBookingAction,
   createCheckoutSessionAction,
 } from "./bookingAction";
+import Image from "next/image";
 
 // ============================================================================
 // TYPES & TIME SLOTS
@@ -256,8 +257,9 @@ function BookingContent() {
       });
 
       if (!bookingRes.success) {
-        toast.error(bookingRes.error || "Failed to create booking.", { id: toastId });
-        setSubmitError(bookingRes.error || "Failed to create booking.");
+        const errorText = getErrorMessage(bookingRes.error, "Failed to create booking.");
+        toast.error(errorText, { id: toastId });
+        setSubmitError(errorText);
         setIsSubmitting(false);
         return;
       }
@@ -525,7 +527,9 @@ function BookingContent() {
                       Assigned Specialist
                     </span>
 
-                    <img
+                    <Image
+                    width={50}
+                    height={50}
                       src={
                         selectedTech.photoUrl ||
                         "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
@@ -723,7 +727,9 @@ function BookingContent() {
 
               {/* Selected Technician Card Preview */}
               <div className="p-4 rounded-2xl bg-secondary/50 border border-border/80 flex items-center gap-3">
-                <img
+                <Image
+                width={50}
+                height={50}
                   src={
                     selectedTech.photoUrl ||
                     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"

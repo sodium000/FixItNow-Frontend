@@ -1,6 +1,7 @@
 "use server";
 
 import { axiosInstance } from "@/lib/axios";
+import { getErrorMessage } from "@/lib/utils";
 import { LoginUserType } from "./LoginCard";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { cookies } from "next/headers";
@@ -8,7 +9,6 @@ import { cookies } from "next/headers";
 export const loginUser = async (data: LoginUserType) => {
   try {
     const res = await axiosInstance.post("/api/authlogin/login", data);
-    console.log("Login API response:", res.data);
 
     const accessToken =
       res.data?.data?.accessToken || res.data?.accessToken;
@@ -37,10 +37,7 @@ export const loginUser = async (data: LoginUserType) => {
 
     return { success: true, data: decodedToken, accessToken, refreshToken };
   } catch (error: any) {
-    const message =
-      error?.response?.data?.message ||
-      error?.response?.data?.error ||
-      error.message;
+    const message = getErrorMessage(error, "Login failed. Please check your credentials.");
     return { success: false, error: message };
   }
 };
@@ -97,11 +94,7 @@ export const refreshAccessToken = async () => {
 
     return { success: false, error: "Failed to obtain new access token from API." };
   } catch (error: any) {
-    const message =
-      error?.response?.data?.message ||
-      error?.response?.data?.error ||
-      error?.message ||
-      "Failed to refresh token.";
+    const message = getErrorMessage(error, "Failed to refresh token.");
     return { success: false, error: message };
   }
 };

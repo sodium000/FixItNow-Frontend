@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "@/lib/utils";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -313,7 +314,9 @@ export default function AdminDashboardPage() {
       queryClient.invalidateQueries({ queryKey: ["adminCategories"] });
       refetchCategories();
     } else {
-      toast.error(res.error || "Failed to create category.", { id: toastId });
+      toast.error(getErrorMessage(res.error, "Failed to create category."), {
+        id: toastId,
+      });
     }
   };
 
@@ -338,7 +341,7 @@ export default function AdminDashboardPage() {
       queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
       refetchUsers();
     } else {
-      toast.error(res.error || "Failed to update user status.", {
+      toast.error(getErrorMessage(res.error, "Failed to update user status."), {
         id: toastId,
       });
     }
@@ -373,7 +376,9 @@ export default function AdminDashboardPage() {
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="relative group shrink-0">
-                <img
+                <Image
+                width={50}
+                height={50}
                   src={
                     adminUser?.photoUrl ||
                     "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=300&auto=format&fit=crop&q=80"
@@ -607,7 +612,9 @@ export default function AdminDashboardPage() {
                         >
                           <td className="px-4 py-3.5">
                             <div className="flex items-center gap-3">
-                              <img
+                              <Image
+                              width={50}
+                              height={50}
                                 src={
                                   user.photoUrl ||
                                   "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop"
@@ -751,7 +758,9 @@ export default function AdminDashboardPage() {
                       className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4"
                     >
                       <div className="flex items-start gap-3">
-                        <img
+                        <Image 
+                        width={50}
+                        height={50}
                           src={photo}
                           alt={name}
                           className="h-14 w-14 rounded-xl border border-border object-cover shrink-0 shadow-xs"

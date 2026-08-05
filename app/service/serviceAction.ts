@@ -1,6 +1,7 @@
 "use server";
 
 import axios from "axios";
+import { getErrorMessage } from "@/lib/utils";
 
 export const getServicesAction = async () => {
   try {
@@ -20,10 +21,7 @@ export const getServicesAction = async () => {
     console.error("Server Action fetch services error:", error);
     return {
       success: false,
-      error:
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to fetch services",
+      error: getErrorMessage(error, "Failed to fetch services"),
       data: [],
     };
   }
@@ -44,10 +42,7 @@ export const getServiceByIdAction = async (serviceId: string) => {
     console.error("Server Action fetch service by ID error:", error);
     return {
       success: false,
-      error:
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to fetch service details",
+      error: getErrorMessage(error, "Failed to fetch service details"),
       data: null,
     };
   }

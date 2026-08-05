@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "@/lib/utils";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { BookingsTable } from "@/components/dashboard/BookingsTable";
@@ -38,6 +39,7 @@ import {
   updateTechnicianBookingStatusAction,
   type TechnicianProfileResponse,
 } from "@/app/technician/technicianAction";
+import Image from "next/image";
 
 function normalizeBooking(raw: any): Booking {
   return {
@@ -167,7 +169,7 @@ export default function TechnicianDashboardPage() {
       );
       queryClient.invalidateQueries({ queryKey: ["technicianProfile"] });
     } else {
-      toast.error(res.error || "Failed to update availability.", {
+      toast.error(getErrorMessage(res.error, "Failed to update availability."), {
         id: toastId,
       });
     }
@@ -194,7 +196,9 @@ export default function TechnicianDashboardPage() {
       setProfileDraft(null);
       queryClient.invalidateQueries({ queryKey: ["technicianProfile"] });
     } else {
-      toast.error(res.error || "Failed to update profile.", { id: toastId });
+      toast.error(getErrorMessage(res.error, "Failed to update profile."), {
+        id: toastId,
+      });
     }
   };
 
@@ -214,7 +218,9 @@ export default function TechnicianDashboardPage() {
       setPhotoDraft("");
       queryClient.invalidateQueries({ queryKey: ["technicianProfile"] });
     } else {
-      toast.error(res.error || "Failed to update photo.", { id: toastId });
+      toast.error(getErrorMessage(res.error, "Failed to update photo."), {
+        id: toastId,
+      });
     }
   };
 
@@ -233,7 +239,9 @@ export default function TechnicianDashboardPage() {
       toast.success(res.message || "Booking updated!", { id: toastId });
       queryClient.invalidateQueries({ queryKey: ["technicianBookings"] });
     } else {
-      toast.error(res.error || "Failed to update booking.", { id: toastId });
+      toast.error(getErrorMessage(res.error, "Failed to update booking."), {
+        id: toastId,
+      });
     }
   };
 
@@ -328,7 +336,9 @@ export default function TechnicianDashboardPage() {
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
               <div className="relative group shrink-0">
-                <img
+                <Image
+                width={50}
+                height={50}
                   src={
                     technician.user?.photoUrl ||
                     "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&auto=format&fit=crop&q=80"
@@ -710,7 +720,9 @@ export default function TechnicianDashboardPage() {
             </div>
             <form onSubmit={handleSavePhoto} className="space-y-4">
               <div className="flex justify-center">
-                <img
+                <Image
+                width={50}
+                height={50}
                   src={
                     photoDraft ||
                     "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&auto=format&fit=crop&q=80"

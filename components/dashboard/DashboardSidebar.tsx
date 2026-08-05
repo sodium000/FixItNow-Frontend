@@ -15,6 +15,7 @@ import type { Role } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { getCurrentUser } from "./getUser";
+import Image from "next/image";
 // Adjust path to action file
 
 interface NavLink {
@@ -148,7 +149,9 @@ export function DashboardSidebar({
       <div className="border-t border-border p-4">
         <div className="mb-3 flex items-center gap-3 rounded-xl bg-muted/50 p-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
+          width={50}
+          height={50}
             src={
               userInfo.photoUrl ||
               "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=300&auto=format&fit=crop&q=80"

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -40,15 +41,19 @@ export default function LoginCard() {
         else if (role === "TECHNICIAN") router.push("/dashboard/technician");
         else router.push("/dashboard/customer");
       } else {
-        toast.error(data.error || "Login failed. Please check your credentials.", {
-          id: "login-toast",
-        });
+        toast.error(
+          getErrorMessage(data.error, "Login failed. Please check your credentials."),
+          { id: "login-toast" },
+        );
       }
     },
     onError: (err: any) => {
-      toast.error(err?.message || "An error occurred during login.", {
-        id: "login-toast",
-      });
+      toast.error(
+        getErrorMessage(err, "An error occurred during login."),
+        {
+          id: "login-toast",
+        },
+      );
     },
   });
 

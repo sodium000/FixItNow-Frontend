@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { cookies } from "next/headers";
+import { getErrorMessage } from "@/lib/utils";
 
 export interface CreateReviewPayload {
   bookingId: string;
@@ -42,11 +43,7 @@ export const createReviewAction = async (payload: CreateReviewPayload) => {
     );
     return {
       success: false,
-      error:
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        error?.message ||
-        "Failed to submit review.",
+      error: getErrorMessage(error, "Failed to submit review."),
       data: null,
     };
   }

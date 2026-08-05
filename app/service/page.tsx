@@ -94,7 +94,6 @@ const fetchServices = async (): Promise<ServiceItem[]> => {
   if (!result.success) {
     throw new Error(result.error);
   }
-  console.log(result);
   return result.data;
 };
 

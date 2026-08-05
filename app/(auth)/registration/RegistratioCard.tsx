@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/incompatible-library */
 "use client";
 
 import { useState } from "react";
@@ -22,6 +23,7 @@ import { useForm } from "react-hook-form";
 import { RegistrationHandle } from "../FuntionalWork/Registration";
 import { RegUserType } from "../FuntionalWork/Typefile/Type";
 import toast from "react-hot-toast";
+import { getErrorMessage } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 export default function RegistrationCard() {
@@ -106,9 +108,10 @@ export default function RegistrationCard() {
         });
         router.push("/login");
       } else {
-        toast.error(result?.error || "Registration failed. Please try again.", {
-          id: toastId,
-        });
+        toast.error(
+          getErrorMessage(result?.error, "Registration failed. Please try again."),
+          { id: toastId },
+        );
       }
     } catch {
       toast.error("An unexpected error occurred.", { id: toastId });
