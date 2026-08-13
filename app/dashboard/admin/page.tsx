@@ -171,7 +171,6 @@ export default function AdminDashboardPage() {
     staleTime: 1000 * 30,
   });
 
-  console.log(bookingsRes?.data.Allbooking);
 
   const rawBookings = bookingsRes?.data.Allbooking || [];
   const bookingsList: Booking[] =
