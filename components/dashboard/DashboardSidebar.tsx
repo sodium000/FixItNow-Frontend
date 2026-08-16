@@ -25,33 +25,6 @@ interface NavLink {
   roles: Role[];
 }
 
-const NAV_LINKS: NavLink[] = [
-  {
-    label: "Overview",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-    roles: ["CUSTOMER", "TECHNICIAN", "ADMIN"],
-  },
-  {
-    label: "My Profile",
-    href: "/dashboard/customer",
-    icon: User,
-    roles: ["CUSTOMER"],
-  },
-  {
-    label: "Technician Panel",
-    href: "/dashboard/technician",
-    icon: Wrench,
-    roles: ["TECHNICIAN"],
-  },
-  {
-    label: "Admin Panel",
-    href: "/dashboard/admin",
-    icon: Shield,
-    roles: ["ADMIN"],
-  },
-];
-
 interface DashboardSidebarProps {
   role?: Role;
   userName?: string;
@@ -79,6 +52,7 @@ export function DashboardSidebar({
     async function fetchUserData() {
       try {
         const user = await getCurrentUser();
+        console.log("User from token:", user);
         if (user) {
           setUserInfo({
             name: user.name,
@@ -96,9 +70,6 @@ export function DashboardSidebar({
   }, []);
 
   const activeRole = userInfo.role;
-  const visibleLinks = NAV_LINKS.filter((link) =>
-    link.roles.includes(activeRole),
-  );
 
   return (
     <aside className="flex mt-20 min-h-auto w-full max-w-full shrink-0 flex-col border-b border-border bg-sidebar lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:max-w-[18rem] lg:border-b-0 lg:border-r lg:overflow-y-auto">
@@ -116,42 +87,12 @@ export function DashboardSidebar({
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-1 p-4">
-        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Navigation
-        </p>
-        {visibleLinks.map((link) => {
-          const isActive =
-            pathname === link.href ||
-            (link.href !== "/dashboard" &&
-              pathname.startsWith(link.href.split("#")[0]));
-          const Icon = link.icon;
-
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
-              )}
-            >
-              <Icon className="h-4 w-4 shrink-0" />
-              <span className="flex-1">{link.label}</span>
-              {isActive && <ChevronRight className="h-3.5 w-3.5 opacity-60" />}
-            </Link>
-          );
-        })}
-      </nav>
-
       <div className="border-t border-border p-4">
         <div className="mb-3 flex items-center gap-3 rounded-xl bg-muted/50 p-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <Image
-          width={50}
-          height={50}
+            width={50}
+            height={50}
             src={
               userInfo.photoUrl ||
               "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=300&auto=format&fit=crop&q=80"
