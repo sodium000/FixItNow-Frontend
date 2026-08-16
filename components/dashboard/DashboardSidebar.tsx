@@ -14,7 +14,7 @@ import {
 import type { Role } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
-import { getCurrentUser } from "./getUser";
+import { getMyProfileAction } from "@/lib/profileAction";
 import Image from "next/image";
 // Adjust path to action file
 
@@ -51,18 +51,18 @@ export function DashboardSidebar({
   useEffect(() => {
     async function fetchUserData() {
       try {
-        const user = await getCurrentUser();
-        console.log("User from token:", user);
-        if (user) {
+        const result = await getMyProfileAction();
+        if (result.success && result.data) {
+          const user = result.data;
           setUserInfo({
             name: user.name,
             email: user.email,
             role: user.role as Role,
-            photoUrl: user.photoUrl,
+            photoUrl: user.photoUrl ?? undefined,
           });
         }
       } catch (error) {
-        console.error("Failed to load user from token:", error);
+        console.error("Failed to load user profile:", error);
       }
     }
 
