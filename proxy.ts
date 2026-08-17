@@ -2,20 +2,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Protected routes that require authentication
 const PROTECTED_ROUTES = ["/dashboard", "/booking", "/myprofile"];
 
-// Auth routes that should NOT be accessible when logged in
 const AUTH_ROUTES = ["/login", "/registration"];
 
-// Role → the ONE dashboard path that role is allowed to access
 const ROLE_DASHBOARD_MAP: Record<string, string> = {
   ADMIN: "/dashboard/admin",
   TECHNICIAN: "/dashboard/technician",
   CUSTOMER: "/dashboard/customer",
 };
 
-// Decode JWT payload (base64url) — no signature verification needed in proxy
 function decodeJwtPayload(token: string): Record<string, any> | null {
   try {
     const parts = token.split(".");
@@ -28,21 +24,18 @@ function decodeJwtPayload(token: string): Record<string, any> | null {
   }
 }
 
-// Extract role string from JWT access token
 function getRoleFromToken(token: string | undefined): string | null {
   if (!token) return null;
   const payload = decodeJwtPayload(token);
   return payload?.role || payload?.userRole || null;
 }
 
-// Check if pathname belongs to a role-specific dashboard sub-route
 function isRoleSubDashboard(pathname: string): boolean {
   return Object.values(ROLE_DASHBOARD_MAP).some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
 }
 
-// Check whether a JWT-like token is unexpired (uses decoded payload `exp`)
 function isTokenValid(token: string | undefined): boolean {
   if (!token) return false;
   const payload = decodeJwtPayload(token);
@@ -51,7 +44,6 @@ function isTokenValid(token: string | undefined): boolean {
   if (typeof exp === "number") {
     return exp > Math.floor(Date.now() / 1000);
   }
-  // If no exp claim, assume valid
   return true;
 }
 
@@ -70,37 +62,27 @@ export async function proxy(request: NextRequest) {
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
 
-  // ── 1. Redirect logged-in users away from auth pages ───────────────────────
-  // Only redirect away from auth pages when there is a valid (unexpired)
-  // access token. This prevents stale/expired tokens or presence of only a
-  // refresh token from forcing a redirect and lets the refresh flow run.
   if (isAuthRoute && hasValidAccessToken) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // ── 2. Redirect unauthenticated users away from protected pages ─────────────
   if (isProtectedRoute && !isLoggedIn) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // ── 3. Role-based dashboard protection ────────────────────────────────────
-  //    Only runs when user is logged in AND is trying to access a role dashboard
   if (isLoggedIn && isRoleSubDashboard(pathname)) {
     const role = getRoleFromToken(accessToken);
 
     if (role) {
       const allowedPath = ROLE_DASHBOARD_MAP[role];
-      // If the user is NOT on their own dashboard path → redirect to correct one
       if (allowedPath && !pathname.startsWith(allowedPath)) {
         return NextResponse.redirect(new URL(allowedPath, request.url));
       }
     }
-    // If no role could be decoded (accessToken missing/expired), fall through to token refresh below
   }
 
-  // ── 4. Auto Token Refresh: accessToken expired but refreshToken present ─────
   if (!accessToken && refreshToken) {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -122,7 +104,6 @@ export async function proxy(request: NextRequest) {
       if (newAccessToken) {
         const role = getRoleFromToken(newAccessToken);
 
-        // Helper to build a response with refreshed tokens set
         const buildResponseWithTokens = (response: NextResponse) => {
           response.cookies.set({
             name: "accessToken",
@@ -145,7 +126,6 @@ export async function proxy(request: NextRequest) {
           return response;
         };
 
-        // If user hit an auth route with a still-valid refresh token → send to their dashboard
         if (isAuthRoute) {
           const redirectPath =
             role && ROLE_DASHBOARD_MAP[role]
@@ -156,7 +136,6 @@ export async function proxy(request: NextRequest) {
           );
         }
 
-        // If user is on a wrong-role dashboard after refresh → redirect to correct one
         if (isRoleSubDashboard(pathname) && role) {
           const allowedPath = ROLE_DASHBOARD_MAP[role];
           if (allowedPath && !pathname.startsWith(allowedPath)) {
@@ -166,11 +145,9 @@ export async function proxy(request: NextRequest) {
           }
         }
 
-        // Otherwise just proceed and set the new tokens
         return buildResponseWithTokens(NextResponse.next());
       }
 
-      // Refresh failed on a protected route → send to login
       if (isProtectedRoute) {
         const loginUrl = new URL("/login", request.url);
         loginUrl.searchParams.set("redirect", pathname);

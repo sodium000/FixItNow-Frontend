@@ -13,19 +13,17 @@ import {
   Trash2,
   Camera,
   BarChart3,
-
   ShieldCheck,
-
   Phone,
   Calendar,
   X,
-
   ChevronLeft,
   ChevronRight,
   Loader2,
   UserCheck,
   UserX,
   Sparkles,
+  Pencil,
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -48,6 +46,7 @@ import {
 } from "@/lib/mock-data";
 import type {
   ServiceCategory,
+  ServiceItem,
   User,
   Booking,
   RevenueDataPoint,
@@ -62,6 +61,12 @@ import {
   getAdminUsersAction,
   updateAdminUserStatusAction,
   getAdminBookingsAction,
+  deleteAdminUserAction,
+  updateAdminUserAction,
+  deleteAdminCategoryAction,
+  updateAdminCategoryAction,
+  deleteAdminServiceAction,
+  updateAdminServiceAction,
   type CreateCategoryServiceInput,
   getAllTechnicians,
 } from "@/lib/adminAction";
@@ -71,6 +76,89 @@ import Image from "next/image";
 type AdminTab = "overview" | "users" | "technicians" | "services" | "bookings";
 type ChartFilter = "all" | "revenue" | "status" | "categories" | "trends";
 
+// ─── Reusable Confirm Dialog ────────────────────────────────────────────────
+function ConfirmDialog({
+  open,
+  title,
+  description,
+  onConfirm,
+  onCancel,
+  loading,
+}: {
+  open: boolean;
+  title: string;
+  description: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  loading?: boolean;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-80 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">
+        <h3 className="text-lg font-bold text-foreground">{title}</h3>
+        <p className="text-sm text-muted-foreground">{description}</p>
+        <div className="flex gap-3 pt-1">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={onCancel}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            className="w-full gap-1.5"
+            onClick={onConfirm}
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
+            Delete
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Modal Wrapper ───────────────────────────────────────────────────────────
+function Modal({
+  open,
+  title,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  title: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-80 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold text-foreground">{title}</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1 text-muted-foreground hover:bg-muted transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ───────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
   const queryClient = useQueryClient();
 
@@ -98,6 +186,55 @@ export default function AdminDashboardPage() {
   const [updatingUserId, setUpdatingUserId] = React.useState<string | null>(
     null,
   );
+
+  // ── Edit User Modal State ──
+  const [editUserModal, setEditUserModal] = React.useState(false);
+  const [editingUser, setEditingUser] = React.useState<User | null>(null);
+  const [editUserForm, setEditUserForm] = React.useState({
+    name: "",
+    email: "",
+    phone: "",
+    role: "",
+  });
+  const [isEditUserSaving, setIsEditUserSaving] = React.useState(false);
+
+  // ── Delete User Confirm State ──
+  const [deleteUserConfirm, setDeleteUserConfirm] = React.useState(false);
+  const [deletingUser, setDeletingUser] = React.useState<User | null>(null);
+  const [isDeletingUser, setIsDeletingUser] = React.useState(false);
+
+  // ── Edit Category Modal State ──
+  const [editCategoryModal, setEditCategoryModal] = React.useState(false);
+  const [editingCategory, setEditingCategory] =
+    React.useState<ServiceCategory | null>(null);
+  const [editCategoryForm, setEditCategoryForm] = React.useState({
+    name: "",
+    description: "",
+  });
+  const [isEditCategorySaving, setIsEditCategorySaving] = React.useState(false);
+
+  // ── Delete Category Confirm State ──
+  const [deleteCategoryConfirm, setDeleteCategoryConfirm] =
+    React.useState(false);
+  const [deletingCategory, setDeletingCategory] =
+    React.useState<ServiceCategory | null>(null);
+  const [isDeletingCategory, setIsDeletingCategory] = React.useState(false);
+
+  // ── Edit Service Modal State ──
+  const [editServiceModal, setEditServiceModal] = React.useState(false);
+  const [editingService, setEditingService] =
+    React.useState<ServiceItem | null>(null);
+  const [editServiceForm, setEditServiceForm] = React.useState({
+    name: "",
+    price: 0,
+  });
+  const [isEditServiceSaving, setIsEditServiceSaving] = React.useState(false);
+
+  // ── Delete Service Confirm State ──
+  const [deleteServiceConfirm, setDeleteServiceConfirm] = React.useState(false);
+  const [deletingService, setDeletingService] =
+    React.useState<ServiceItem | null>(null);
+  const [isDeletingService, setIsDeletingService] = React.useState(false);
 
   // 1. Fetch Logged-in Admin Profile
   const { data: myProfile } = useQuery({
@@ -162,15 +299,11 @@ export default function AdminDashboardPage() {
   const technicians = techniciansRes?.data?.users ?? [];
 
   // 4. Fetch Admin Bookings for Dynamic Charts & Tables
-  const {
-    data: bookingsRes,
-    isLoading: isBookingsLoading,
-  } = useQuery({
+  const { data: bookingsRes, isLoading: isBookingsLoading } = useQuery({
     queryKey: ["adminBookings", bookingsPage],
     queryFn: () => getAdminBookingsAction(bookingsPage, 10),
     staleTime: 1000 * 30,
   });
-
 
   const rawBookings = bookingsRes?.data.Allbooking || [];
   const bookingsList: Booking[] =
@@ -273,7 +406,6 @@ export default function AdminDashboardPage() {
       return;
     }
 
-    // Validate and format sub-services array for Prisma backend createdCategory handler
     const validServices = serviceSubItems
       .filter(
         (s) => s.name.trim().length > 0 && s.technicianId.trim().length > 0,
@@ -346,6 +478,196 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // ─── Edit User ─────────────────────────────────────────────────────────────
+  const openEditUser = (user: User) => {
+    setEditingUser(user);
+    setEditUserForm({
+      name: user.name,
+      email: user.email,
+      phone: user.phone ?? "",
+      role: user.role,
+    });
+    setEditUserModal(true);
+  };
+
+  const handleSaveEditUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    setIsEditUserSaving(true);
+    const toastId = toast.loading("Updating user...");
+
+    const res = await updateAdminUserAction(editingUser.id, {
+      name: editUserForm.name.trim(),
+      email: editUserForm.email.trim(),
+      phone: editUserForm.phone.trim() || undefined,
+      role: editUserForm.role,
+    });
+
+    setIsEditUserSaving(false);
+    if (res.success) {
+      toast.success("User updated successfully! ✅", { id: toastId });
+      setEditUserModal(false);
+      setEditingUser(null);
+      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      refetchUsers();
+    } else {
+      toast.error(getErrorMessage(res.error, "Failed to update user."), {
+        id: toastId,
+      });
+    }
+  };
+
+  // ─── Delete User ───────────────────────────────────────────────────────────
+  const openDeleteUser = (user: User) => {
+    setDeletingUser(user);
+    setDeleteUserConfirm(true);
+  };
+
+  const handleConfirmDeleteUser = async () => {
+    if (!deletingUser) return;
+    setIsDeletingUser(true);
+    const toastId = toast.loading(`Deleting ${deletingUser.name}...`);
+
+    const res = await deleteAdminUserAction(deletingUser.id);
+
+    setIsDeletingUser(false);
+    setDeleteUserConfirm(false);
+    setDeletingUser(null);
+
+    if (res.success) {
+      toast.success("User deleted successfully! 🗑️", { id: toastId });
+      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      refetchUsers();
+    } else {
+      toast.error(getErrorMessage(res.error, "Failed to delete user."), {
+        id: toastId,
+      });
+    }
+  };
+
+  // ─── Edit Category ─────────────────────────────────────────────────────────
+  const openEditCategory = (category: ServiceCategory) => {
+    setEditingCategory(category);
+    setEditCategoryForm({
+      name: category.name,
+      description: category.description ?? "",
+    });
+    setEditCategoryModal(true);
+  };
+
+  const handleSaveEditCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCategory) return;
+    setIsEditCategorySaving(true);
+    const toastId = toast.loading("Updating category...");
+
+    const res = await updateAdminCategoryAction(editingCategory.id, {
+      name: editCategoryForm.name.trim(),
+      description: editCategoryForm.description.trim(),
+    });
+
+    setIsEditCategorySaving(false);
+    if (res.success) {
+      toast.success("Category updated! ✅", { id: toastId });
+      setEditCategoryModal(false);
+      setEditingCategory(null);
+      queryClient.invalidateQueries({ queryKey: ["adminCategories"] });
+      refetchCategories();
+    } else {
+      toast.error(getErrorMessage(res.error, "Failed to update category."), {
+        id: toastId,
+      });
+    }
+  };
+
+  // ─── Delete Category ───────────────────────────────────────────────────────
+  const openDeleteCategory = (category: ServiceCategory) => {
+    setDeletingCategory(category);
+    setDeleteCategoryConfirm(true);
+  };
+
+  const handleConfirmDeleteCategory = async () => {
+    if (!deletingCategory) return;
+    setIsDeletingCategory(true);
+    const toastId = toast.loading(`Deleting category "${deletingCategory.name}"...`);
+
+    const res = await deleteAdminCategoryAction(deletingCategory.id);
+
+    setIsDeletingCategory(false);
+    setDeleteCategoryConfirm(false);
+    setDeletingCategory(null);
+
+    if (res.success) {
+      toast.success("Category deleted! 🗑️", { id: toastId });
+      queryClient.invalidateQueries({ queryKey: ["adminCategories"] });
+      refetchCategories();
+    } else {
+      toast.error(getErrorMessage(res.error, "Failed to delete category."), {
+        id: toastId,
+      });
+    }
+  };
+
+  // ─── Edit Service ──────────────────────────────────────────────────────────
+  const openEditService = (service: ServiceItem) => {
+    setEditingService(service);
+    setEditServiceForm({ name: service.name, price: service.price });
+    setEditServiceModal(true);
+  };
+
+  const handleSaveEditService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingService) return;
+    setIsEditServiceSaving(true);
+    const toastId = toast.loading("Updating service...");
+
+    const res = await updateAdminServiceAction(editingService.id, {
+      name: editServiceForm.name.trim(),
+      price: Number(editServiceForm.price),
+    });
+
+    setIsEditServiceSaving(false);
+    if (res.success) {
+      toast.success("Service updated! ✅", { id: toastId });
+      setEditServiceModal(false);
+      setEditingService(null);
+      queryClient.invalidateQueries({ queryKey: ["adminCategories"] });
+      refetchCategories();
+    } else {
+      toast.error(getErrorMessage(res.error, "Failed to update service."), {
+        id: toastId,
+      });
+    }
+  };
+
+  // ─── Delete Service ────────────────────────────────────────────────────────
+  const openDeleteService = (service: ServiceItem) => {
+    setDeletingService(service);
+    setDeleteServiceConfirm(true);
+  };
+
+  const handleConfirmDeleteService = async () => {
+    if (!deletingService) return;
+    setIsDeletingService(true);
+    const toastId = toast.loading(`Deleting service "${deletingService.name}"...`);
+
+    const res = await deleteAdminServiceAction(deletingService.id);
+
+    setIsDeletingService(false);
+    setDeleteServiceConfirm(false);
+    setDeletingService(null);
+
+    if (res.success) {
+      toast.success("Service deleted! 🗑️", { id: toastId });
+      queryClient.invalidateQueries({ queryKey: ["adminCategories"] });
+      refetchCategories();
+    } else {
+      toast.error(getErrorMessage(res.error, "Failed to delete service."), {
+        id: toastId,
+      });
+    }
+  };
+
   const tabs: { id: AdminTab; label: string }[] = [
     { id: "overview", label: "Overview & Analytics" },
     { id: "users", label: "Users Management" },
@@ -376,8 +698,8 @@ export default function AdminDashboardPage() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="relative group shrink-0">
                 <Image
-                width={50}
-                height={50}
+                  width={50}
+                  height={50}
                   src={
                     adminUser?.photoUrl ||
                     "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=300&auto=format&fit=crop&q=80"
@@ -570,7 +892,7 @@ export default function AdminDashboardPage() {
                   Users Management
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  View registered users and update individual user status
+                  View, edit, delete registered users or update their status
                 </p>
               </div>
 
@@ -612,8 +934,8 @@ export default function AdminDashboardPage() {
                           <td className="px-4 py-3.5">
                             <div className="flex items-center gap-3">
                               <Image
-                              width={50}
-                              height={50}
+                                width={50}
+                                height={50}
                                 src={
                                   user.photoUrl ||
                                   "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop"
@@ -655,27 +977,54 @@ export default function AdminDashboardPage() {
                             {new Date(user.createdAt).toLocaleDateString()}
                           </td>
                           <td className="px-4 py-3.5 text-right">
-                            <Button
-                              size="sm"
-                              variant={user.isActive ? "outline" : "default"}
-                              disabled={updatingUserId === user.id}
-                              onClick={() => handleToggleUserStatus(user)}
-                              className="h-8 gap-1.5 text-xs rounded-lg"
-                            >
-                              {updatingUserId === user.id ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              ) : user.isActive ? (
-                                <>
-                                  <UserX className="w-3.5 h-3.5 text-destructive" />
-                                  Block User
-                                </>
-                              ) : (
-                                <>
-                                  <UserCheck className="w-3.5 h-3.5" />
-                                  Activate
-                                </>
-                              )}
-                            </Button>
+                            <div className="flex items-center justify-end gap-1.5">
+                              {/* Toggle Status */}
+                              <Button
+                                size="sm"
+                                variant={user.isActive ? "outline" : "default"}
+                                disabled={updatingUserId === user.id}
+                                onClick={() => handleToggleUserStatus(user)}
+                                className="h-8 gap-1.5 text-xs rounded-lg"
+                              >
+                                {updatingUserId === user.id ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : user.isActive ? (
+                                  <>
+                                    <UserX className="w-3.5 h-3.5 text-destructive" />
+                                    Block
+                                  </>
+                                ) : (
+                                  <>
+                                    <UserCheck className="w-3.5 h-3.5" />
+                                    Activate
+                                  </>
+                                )}
+                              </Button>
+
+                              {/* Edit User */}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openEditUser(user)}
+                                className="h-8 gap-1.5 text-xs rounded-lg text-blue-600 border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                                title="Edit user info"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                                Edit
+                              </Button>
+
+                              {/* Delete User */}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openDeleteUser(user)}
+                                className="h-8 gap-1.5 text-xs rounded-lg text-destructive border-destructive/30 hover:bg-destructive/10"
+                                title="Delete user"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                Delete
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -757,9 +1106,9 @@ export default function AdminDashboardPage() {
                       className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4"
                     >
                       <div className="flex items-start gap-3">
-                        <Image 
-                        width={50}
-                        height={50}
+                        <Image
+                          width={50}
+                          height={50}
                           src={photo}
                           alt={name}
                           className="h-14 w-14 rounded-xl border border-border object-cover shrink-0 shadow-xs"
@@ -1033,8 +1382,9 @@ export default function AdminDashboardPage() {
                         key={category.id}
                         className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4"
                       >
-                        <div className="flex items-start justify-between">
-                          <div>
+                        {/* Category Header */}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
                             <h3 className="text-base font-bold text-foreground">
                               {category.name}
                             </h3>
@@ -1043,9 +1393,31 @@ export default function AdminDashboardPage() {
                                 "No description provided."}
                             </p>
                           </div>
-                          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-                            {category.services?.length || 0} Services
-                          </span>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                              {category.services?.length || 0} Services
+                            </span>
+                            {/* Edit Category */}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openEditCategory(category)}
+                              className="h-8 gap-1.5 text-xs rounded-lg text-blue-600 border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                              Edit
+                            </Button>
+                            {/* Delete Category */}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openDeleteCategory(category)}
+                              className="h-8 gap-1.5 text-xs rounded-lg text-destructive border-destructive/30 hover:bg-destructive/10"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              Delete
+                            </Button>
+                          </div>
                         </div>
 
                         {category.services && category.services.length > 0 ? (
@@ -1061,6 +1433,9 @@ export default function AdminDashboardPage() {
                                   </th>
                                   <th className="px-4 py-2.5 font-semibold">
                                     Assigned Technician
+                                  </th>
+                                  <th className="px-4 py-2.5 font-semibold text-right">
+                                    Actions
                                   </th>
                                 </tr>
                               </thead>
@@ -1080,6 +1455,34 @@ export default function AdminDashboardPage() {
                                         ) ||
                                         service.technicianId ||
                                         "—"}
+                                    </td>
+                                    <td className="px-4 py-3 text-right">
+                                      <div className="flex items-center justify-end gap-1.5">
+                                        {/* Edit Service */}
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() =>
+                                            openEditService(service)
+                                          }
+                                          className="h-7 gap-1 text-xs rounded-lg text-blue-600 border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                                        >
+                                          <Pencil className="w-3 h-3" />
+                                          Edit
+                                        </Button>
+                                        {/* Delete Service */}
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() =>
+                                            openDeleteService(service)
+                                          }
+                                          className="h-7 gap-1 text-xs rounded-lg text-destructive border-destructive/30 hover:bg-destructive/10"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                          Delete
+                                        </Button>
+                                      </div>
                                     </td>
                                   </tr>
                                 ))}
@@ -1162,6 +1565,9 @@ export default function AdminDashboardPage() {
           </section>
         )}
 
+        {/* ─── MODALS ─────────────────────────────────────────────────────── */}
+
+        {/* Admin Photo Modal */}
         {isPhotoModalOpen && (
           <div className="fixed inset-0 z-70 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
             <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">
@@ -1189,6 +1595,8 @@ export default function AdminDashboardPage() {
               >
                 <div className="flex justify-center">
                   <Image
+                    width={112}
+                    height={112}
                     src={
                       newPhotoUrl ||
                       "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=300&auto=format&fit=crop&q=80"
@@ -1224,6 +1632,262 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         )}
+
+        {/* Edit User Modal */}
+        <Modal
+          open={editUserModal}
+          title="Edit User Info"
+          onClose={() => {
+            setEditUserModal(false);
+            setEditingUser(null);
+          }}
+        >
+          <form onSubmit={handleSaveEditUser} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="editUserName">Name</Label>
+              <Input
+                id="editUserName"
+                value={editUserForm.name}
+                onChange={(e) =>
+                  setEditUserForm((f) => ({ ...f, name: e.target.value }))
+                }
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editUserEmail">Email</Label>
+              <Input
+                id="editUserEmail"
+                type="email"
+                value={editUserForm.email}
+                onChange={(e) =>
+                  setEditUserForm((f) => ({ ...f, email: e.target.value }))
+                }
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editUserPhone">Phone</Label>
+              <Input
+                id="editUserPhone"
+                value={editUserForm.phone}
+                onChange={(e) =>
+                  setEditUserForm((f) => ({ ...f, phone: e.target.value }))
+                }
+                placeholder="Optional"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editUserRole">Role</Label>
+              <select
+                id="editUserRole"
+                value={editUserForm.role}
+                onChange={(e) =>
+                  setEditUserForm((f) => ({ ...f, role: e.target.value }))
+                }
+                className="flex h-10 w-full text-black rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-primary"
+              >
+                <option value="CUSTOMER">CUSTOMER</option>
+                <option value="TECHNICIAN">TECHNICIAN</option>
+                <option value="ADMIN">ADMIN</option>
+              </select>
+            </div>
+            <div className="flex gap-3 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setEditUserModal(false);
+                  setEditingUser(null);
+                }}
+                disabled={isEditUserSaving}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="w-full gap-1.5"
+                disabled={isEditUserSaving}
+              >
+                {isEditUserSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Pencil className="w-4 h-4" />
+                )}
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        </Modal>
+
+        {/* Delete User Confirm Dialog */}
+        <ConfirmDialog
+          open={deleteUserConfirm}
+          title="Delete User?"
+          description={`Are you sure you want to permanently delete "${deletingUser?.name}"? This action cannot be undone.`}
+          onConfirm={handleConfirmDeleteUser}
+          onCancel={() => {
+            setDeleteUserConfirm(false);
+            setDeletingUser(null);
+          }}
+          loading={isDeletingUser}
+        />
+
+        {/* Edit Category Modal */}
+        <Modal
+          open={editCategoryModal}
+          title="Edit Category"
+          onClose={() => {
+            setEditCategoryModal(false);
+            setEditingCategory(null);
+          }}
+        >
+          <form onSubmit={handleSaveEditCategory} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="editCatName">Category Name</Label>
+              <Input
+                id="editCatName"
+                value={editCategoryForm.name}
+                onChange={(e) =>
+                  setEditCategoryForm((f) => ({ ...f, name: e.target.value }))
+                }
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editCatDesc">Description</Label>
+              <Input
+                id="editCatDesc"
+                value={editCategoryForm.description}
+                onChange={(e) =>
+                  setEditCategoryForm((f) => ({
+                    ...f,
+                    description: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="flex gap-3 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setEditCategoryModal(false);
+                  setEditingCategory(null);
+                }}
+                disabled={isEditCategorySaving}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="w-full gap-1.5"
+                disabled={isEditCategorySaving}
+              >
+                {isEditCategorySaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Pencil className="w-4 h-4" />
+                )}
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        </Modal>
+
+        {/* Delete Category Confirm Dialog */}
+        <ConfirmDialog
+          open={deleteCategoryConfirm}
+          title="Delete Category?"
+          description={`Are you sure you want to permanently delete category "${deletingCategory?.name}" and all its services? This action cannot be undone.`}
+          onConfirm={handleConfirmDeleteCategory}
+          onCancel={() => {
+            setDeleteCategoryConfirm(false);
+            setDeletingCategory(null);
+          }}
+          loading={isDeletingCategory}
+        />
+
+        {/* Edit Service Modal */}
+        <Modal
+          open={editServiceModal}
+          title="Edit Service"
+          onClose={() => {
+            setEditServiceModal(false);
+            setEditingService(null);
+          }}
+        >
+          <form onSubmit={handleSaveEditService} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="editSvcName">Service Name</Label>
+              <Input
+                id="editSvcName"
+                value={editServiceForm.name}
+                onChange={(e) =>
+                  setEditServiceForm((f) => ({ ...f, name: e.target.value }))
+                }
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editSvcPrice">Price (৳)</Label>
+              <Input
+                id="editSvcPrice"
+                type="number"
+                min={0}
+                value={editServiceForm.price}
+                onChange={(e) =>
+                  setEditServiceForm((f) => ({
+                    ...f,
+                    price: Number(e.target.value),
+                  }))
+                }
+                required
+              />
+            </div>
+            <div className="flex gap-3 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setEditServiceModal(false);
+                  setEditingService(null);
+                }}
+                disabled={isEditServiceSaving}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="w-full gap-1.5"
+                disabled={isEditServiceSaving}
+              >
+                {isEditServiceSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Pencil className="w-4 h-4" />
+                )}
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        </Modal>
+
+        {/* Delete Service Confirm Dialog */}
+        <ConfirmDialog
+          open={deleteServiceConfirm}
+          title="Delete Service?"
+          description={`Are you sure you want to permanently delete service "${deletingService?.name}"? This action cannot be undone.`}
+          onConfirm={handleConfirmDeleteService}
+          onCancel={() => {
+            setDeleteServiceConfirm(false);
+            setDeletingService(null);
+          }}
+          loading={isDeletingService}
+        />
       </div>
     </DashboardShell>
   );

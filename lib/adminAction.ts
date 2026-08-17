@@ -319,3 +319,195 @@ export const getAdminBookingsAction = async (page = 1, limit = 10) => {
     };
   }
 };
+
+// 6. Delete a User (Admin)
+export const deleteAdminUserAction = async (userId: string) => {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("accessToken")?.value;
+    if (!accessToken) return { success: false, error: "Unauthorized." };
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const res = await axios.delete(`${apiUrl}/api/admin/users/${userId}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    return {
+      success: true,
+      message: res.data?.message || "User deleted successfully.",
+    };
+  } catch (error: any) {
+    console.error("deleteAdminUserAction error:", error?.response?.data || error?.message);
+    return {
+      success: false,
+      error:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to delete user.",
+    };
+  }
+};
+
+// 7. Update a User Info (Admin)
+export const updateAdminUserAction = async (
+  userId: string,
+  payload: { name?: string; email?: string; phone?: string; role?: string },
+) => {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("accessToken")?.value;
+    if (!accessToken) return { success: false, error: "Unauthorized.", data: null };
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const res = await axios.patch(`${apiUrl}/api/admin/users/${userId}`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    return {
+      success: true,
+      message: res.data?.message || "User updated successfully.",
+      data: res.data?.data || res.data,
+    };
+  } catch (error: any) {
+    console.error("updateAdminUserAction error:", error?.response?.data || error?.message);
+    return {
+      success: false,
+      error:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to update user.",
+      data: null,
+    };
+  }
+};
+
+// 8. Delete a Category (Admin)
+export const deleteAdminCategoryAction = async (categoryId: string) => {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("accessToken")?.value;
+    if (!accessToken) return { success: false, error: "Unauthorized." };
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const res = await axios.delete(`${apiUrl}/api/admin/categories/${categoryId}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    return {
+      success: true,
+      message: res.data?.message || "Category deleted successfully.",
+    };
+  } catch (error: any) {
+    console.error("deleteAdminCategoryAction error:", error?.response?.data || error?.message);
+    return {
+      success: false,
+      error:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to delete category.",
+    };
+  }
+};
+
+// 9. Update a Category (Admin)
+export const updateAdminCategoryAction = async (
+  categoryId: string,
+  payload: { name?: string; description?: string },
+) => {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("accessToken")?.value;
+    if (!accessToken) return { success: false, error: "Unauthorized.", data: null };
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const res = await axios.patch(`${apiUrl}/api/admin/categories/${categoryId}`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    return {
+      success: true,
+      message: res.data?.message || "Category updated successfully.",
+      data: res.data?.data || res.data,
+    };
+  } catch (error: any) {
+    console.error("updateAdminCategoryAction error:", error?.response?.data || error?.message);
+    return {
+      success: false,
+      error:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to update category.",
+      data: null,
+    };
+  }
+};
+
+// 10. Delete a Service (Admin)
+export const deleteAdminServiceAction = async (serviceId: string) => {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("accessToken")?.value;
+    if (!accessToken) return { success: false, error: "Unauthorized." };
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const res = await axios.delete(`${apiUrl}/api/admin/services/${serviceId}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    return {
+      success: true,
+      message: res.data?.message || "Service deleted successfully.",
+    };
+  } catch (error: any) {
+    console.error("deleteAdminServiceAction error:", error?.response?.data || error?.message);
+    return {
+      success: false,
+      error:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to delete service.",
+    };
+  }
+};
+
+// 11. Update a Service (Admin)
+export const updateAdminServiceAction = async (
+  serviceId: string,
+  payload: { name?: string; price?: number },
+) => {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("accessToken")?.value;
+    if (!accessToken) return { success: false, error: "Unauthorized.", data: null };
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    const res = await axios.patch(`${apiUrl}/api/admin/services/${serviceId}`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    return {
+      success: true,
+      message: res.data?.message || "Service updated successfully.",
+      data: res.data?.data || res.data,
+    };
+  } catch (error: any) {
+    console.error("updateAdminServiceAction error:", error?.response?.data || error?.message);
+    return {
+      success: false,
+      error:
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to update service.",
+      data: null,
+    };
+  }
+};
