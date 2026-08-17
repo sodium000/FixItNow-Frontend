@@ -589,7 +589,9 @@ export default function AdminDashboardPage() {
   const handleConfirmDeleteCategory = async () => {
     if (!deletingCategory) return;
     setIsDeletingCategory(true);
-    const toastId = toast.loading(`Deleting category "${deletingCategory.name}"...`);
+    const toastId = toast.loading(
+      `Deleting category "${deletingCategory.name}"...`,
+    );
 
     const res = await deleteAdminCategoryAction(deletingCategory.id);
 
@@ -649,7 +651,9 @@ export default function AdminDashboardPage() {
   const handleConfirmDeleteService = async () => {
     if (!deletingService) return;
     setIsDeletingService(true);
-    const toastId = toast.loading(`Deleting service "${deletingService.name}"...`);
+    const toastId = toast.loading(
+      `Deleting service "${deletingService.name}"...`,
+    );
 
     const res = await deleteAdminServiceAction(deletingService.id);
 
@@ -1183,7 +1187,6 @@ export default function AdminDashboardPage() {
           </section>
         )}
 
-        {/* TAB 4: SERVICE CATEGORIES & CREATION (/api/admin/categories) */}
         {activeTab === "services" && (
           <div className="space-y-8">
             {/* Create Category Form with Array of Sub-Services */}
