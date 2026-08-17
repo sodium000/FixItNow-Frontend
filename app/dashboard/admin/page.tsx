@@ -263,10 +263,17 @@ export default function AdminDashboardPage() {
     staleTime: 1000 * 30,
   });
 
-  const rawCategories = Array.isArray(categoriesRes?.data?.services)
-    ? categoriesRes?.data?.services
-    : categoriesRes?.data?.categories || categoriesRes?.data?.result || [];
-  const categoriesList: ServiceCategory[] = rawCategories;
+  const rawCategories =
+    categoriesRes?.data?.AllCategory ||
+    categoriesRes?.data?.categories ||
+    (Array.isArray(categoriesRes?.data?.services)
+      ? categoriesRes?.data?.services
+      : null) ||
+    categoriesRes?.data?.result ||
+    (Array.isArray(categoriesRes?.data) ? categoriesRes?.data : []);
+  const categoriesList: ServiceCategory[] = Array.isArray(rawCategories)
+    ? rawCategories
+    : [];
   const catMeta = categoriesRes?.meta || {
     page: 1,
     limit: 10,

@@ -95,12 +95,36 @@ export const getAdminCategoriesAction = async (page = 1, limit = 10) => {
       ? { Authorization: `Bearer ${accessToken}` }
       : {};
 
-    const res = await axios.get(`${apiUrl}/api/services`, {
-      params: { page, limit },
-      headers,
-    });
+    let res;
+    try {
+      res = await axios.get(`${apiUrl}/api/categories`, {
+        params: { page, limit },
+        headers,
+      });
+    } catch (e: any) {
+      if (e?.response?.status === 404) {
+        try {
+          res = await axios.get(`${apiUrl}/api/admin/categories`, {
+            params: { page, limit },
+            headers,
+          });
+        } catch {
+          res = await axios.get(`${apiUrl}/api/services`, {
+            params: { page, limit },
+            headers,
+          });
+        }
+      } else {
+        throw e;
+      }
+    }
 
     const raw = res.data?.data || res.data;
+    const list =
+      raw?.AllCategory ||
+      raw?.categories ||
+      raw?.services ||
+      (Array.isArray(raw) ? raw : []);
 
     const meta: PaginationMeta = raw?.meta ||
       raw?.pagination ||
@@ -108,8 +132,8 @@ export const getAdminCategoriesAction = async (page = 1, limit = 10) => {
       res.data?.pagination || {
         page,
         limit,
-        total: raw.length,
-        totalPages: Math.ceil(raw.length / limit) || 1,
+        total: list.length,
+        totalPages: Math.ceil(list.length / limit) || 1,
       };
 
     return {
