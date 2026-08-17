@@ -551,7 +551,6 @@ export default function TechnicianDashboardPage() {
             </h2>
             <p className="text-sm text-muted-foreground">
               Bookings loaded from{" "}
-              <code className="text-xs">/api/technician/bookings</code>
             </p>
           </div>
           {isBookingsLoading ? (
