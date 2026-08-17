@@ -76,7 +76,7 @@ import Image from "next/image";
 type AdminTab = "overview" | "users" | "technicians" | "services" | "bookings";
 type ChartFilter = "all" | "revenue" | "status" | "categories" | "trends";
 
-// ─── Reusable Confirm Dialog ────────────────────────────────────────────────
+// ─── Reusable Confirm Dialog (Stacked Column Buttons) ───────────────────────
 function ConfirmDialog({
   open,
   title,
@@ -98,16 +98,9 @@ function ConfirmDialog({
       <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">
         <h3 className="text-lg font-bold text-foreground">{title}</h3>
         <p className="text-sm text-muted-foreground">{description}</p>
-        <div className="flex gap-3 pt-1">
+        <div className="flex flex-col gap-2.5 pt-2">
           <Button
-            variant="outline"
-            className="w-full"
-            onClick={onCancel}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button
+            type="button"
             variant="destructive"
             className="w-full gap-1.5"
             onClick={onConfirm}
@@ -119,6 +112,15 @@ function ConfirmDialog({
               <Trash2 className="w-4 h-4" />
             )}
             Delete
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={onCancel}
+            disabled={loading}
+          >
+            Cancel
           </Button>
         </div>
       </div>
@@ -147,7 +149,7 @@ function Modal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1 text-muted-foreground hover:bg-muted transition-colors"
+            className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -194,7 +196,7 @@ export default function AdminDashboardPage() {
     name: "",
     email: "",
     phone: "",
-    role: "",
+    role: "CUSTOMER",
   });
   const [isEditUserSaving, setIsEditUserSaving] = React.useState(false);
 
@@ -351,7 +353,6 @@ export default function AdminDashboardPage() {
     ];
 
     bookingsList.forEach((b) => {
-      // eslint-disable-next-line react-hooks/purity
       const d = new Date(b.createdAt || Date.now());
       const monthStr = monthsOrder[d.getMonth()] || "Jan";
 
@@ -485,7 +486,7 @@ export default function AdminDashboardPage() {
       name: user.name,
       email: user.email,
       phone: user.phone ?? "",
-      role: user.role,
+      role: user.role || "CUSTOMER",
     });
     setEditUserModal(true);
   };
@@ -589,9 +590,7 @@ export default function AdminDashboardPage() {
   const handleConfirmDeleteCategory = async () => {
     if (!deletingCategory) return;
     setIsDeletingCategory(true);
-    const toastId = toast.loading(
-      `Deleting category "${deletingCategory.name}"...`,
-    );
+    const toastId = toast.loading(`Deleting category "${deletingCategory.name}"...`);
 
     const res = await deleteAdminCategoryAction(deletingCategory.id);
 
@@ -651,9 +650,7 @@ export default function AdminDashboardPage() {
   const handleConfirmDeleteService = async () => {
     if (!deletingService) return;
     setIsDeletingService(true);
-    const toastId = toast.loading(
-      `Deleting service "${deletingService.name}"...`,
-    );
+    const toastId = toast.loading(`Deleting service "${deletingService.name}"...`);
 
     const res = await deleteAdminServiceAction(deletingService.id);
 
@@ -786,7 +783,7 @@ export default function AdminDashboardPage() {
         {/* TAB 1: OVERVIEW & ANALYTICS */}
         {activeTab === "overview" && (
           <div className="space-y-8">
-            {/* Stat Cards Driven by Real / Dynamic Data */}
+            {/* Stat Cards */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
                 title="Total Users"
@@ -815,7 +812,7 @@ export default function AdminDashboardPage() {
               />
             </div>
 
-            {/* MULTI-CHART SECTION */}
+            {/* Multi-Chart Section */}
             <div className="space-y-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -856,7 +853,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* CHARTS GRID */}
+              {/* Charts Grid */}
               <div className="grid gap-6 lg:grid-cols-2">
                 {(chartFilter === "all" || chartFilter === "revenue") && (
                   <RevenueChart data={dynamicRevenueData} />
@@ -886,7 +883,7 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* TAB 2: USERS MANAGEMENT (/api/admin/users) */}
+        {/* TAB 2: USERS MANAGEMENT */}
         {activeTab === "users" && (
           <section className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -900,7 +897,6 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
 
-              {/* Pagination Meta indicator */}
               <div className="text-xs text-muted-foreground font-medium">
                 Showing {usersList.length} users (Page {usersMeta.page} of{" "}
                 {usersMeta.totalPages})
@@ -1187,6 +1183,7 @@ export default function AdminDashboardPage() {
           </section>
         )}
 
+        {/* TAB 4: SERVICE CATEGORIES & CREATION */}
         {activeTab === "services" && (
           <div className="space-y-8">
             {/* Create Category Form with Array of Sub-Services */}
@@ -1307,16 +1304,16 @@ export default function AdminDashboardPage() {
                                   e.target.value,
                                 )
                               }
-                              className="flex h-9 w-full text-black rounded-lg border border-input bg-background px-3 text-xs outline-none focus:border-primary"
+                              className="flex h-9 w-full rounded-lg border border-input bg-background px-3 text-xs text-foreground outline-none focus:border-primary"
                             >
-                              <option value="">Select Technician</option>
+                              <option value="" className="bg-card text-foreground">Select Technician</option>
                               {technicians.map((t: any) => {
                                 const techId =
                                   t.technicianProfile?.id ||
                                   t.technicianProfileId ||
                                   t.id;
                                 return (
-                                  <option key={t.id} value={techId}>
+                                  <option key={t.id} value={techId} className="bg-card text-foreground">
                                     {t.name} ({techId.slice(0, 8)}...)
                                   </option>
                                 );
@@ -1535,7 +1532,7 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* TAB 5: BOOKINGS (/api/admin/bookings) */}
+        {/* TAB 5: BOOKINGS */}
         {activeTab === "bookings" && (
           <section className="space-y-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -1581,7 +1578,7 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setIsPhotoModalOpen(false)}
-                  className="rounded-lg p-1 text-muted-foreground hover:bg-muted"
+                  className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -1618,7 +1615,10 @@ export default function AdminDashboardPage() {
                     required
                   />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2.5 pt-2">
+                  <Button type="submit" className="w-full">
+                    Save Picture
+                  </Button>
                   <Button
                     type="button"
                     variant="outline"
@@ -1626,9 +1626,6 @@ export default function AdminDashboardPage() {
                     onClick={() => setIsPhotoModalOpen(false)}
                   >
                     Cancel
-                  </Button>
-                  <Button type="submit" className="w-full">
-                    Save Picture
                   </Button>
                 </div>
               </form>
@@ -1688,26 +1685,14 @@ export default function AdminDashboardPage() {
                 onChange={(e) =>
                   setEditUserForm((f) => ({ ...f, role: e.target.value }))
                 }
-                className="flex h-10 w-full text-black rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-primary"
+                className="flex h-9 w-full rounded-lg border border-input bg-background px-3 text-xs text-foreground outline-none focus:border-primary"
               >
-                <option value="CUSTOMER">CUSTOMER</option>
-                <option value="TECHNICIAN">TECHNICIAN</option>
-                <option value="ADMIN">ADMIN</option>
+                <option value="CUSTOMER" className="bg-card text-foreground">CUSTOMER</option>
+                <option value="TECHNICIAN" className="bg-card text-foreground">TECHNICIAN</option>
+                <option value="ADMIN" className="bg-card text-foreground">ADMIN</option>
               </select>
             </div>
-            <div className="flex gap-3 pt-1">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  setEditUserModal(false);
-                  setEditingUser(null);
-                }}
-                disabled={isEditUserSaving}
-              >
-                Cancel
-              </Button>
+            <div className="flex flex-col gap-2.5 pt-2">
               <Button
                 type="submit"
                 className="w-full gap-1.5"
@@ -1719,6 +1704,18 @@ export default function AdminDashboardPage() {
                   <Pencil className="w-4 h-4" />
                 )}
                 Save Changes
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setEditUserModal(false);
+                  setEditingUser(null);
+                }}
+                disabled={isEditUserSaving}
+              >
+                Cancel
               </Button>
             </div>
           </form>
@@ -1771,19 +1768,7 @@ export default function AdminDashboardPage() {
                 }
               />
             </div>
-            <div className="flex gap-3 pt-1">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  setEditCategoryModal(false);
-                  setEditingCategory(null);
-                }}
-                disabled={isEditCategorySaving}
-              >
-                Cancel
-              </Button>
+            <div className="flex flex-col gap-2.5 pt-2">
               <Button
                 type="submit"
                 className="w-full gap-1.5"
@@ -1795,6 +1780,18 @@ export default function AdminDashboardPage() {
                   <Pencil className="w-4 h-4" />
                 )}
                 Save Changes
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setEditCategoryModal(false);
+                  setEditingCategory(null);
+                }}
+                disabled={isEditCategorySaving}
+              >
+                Cancel
               </Button>
             </div>
           </form>
@@ -1850,19 +1847,7 @@ export default function AdminDashboardPage() {
                 required
               />
             </div>
-            <div className="flex gap-3 pt-1">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  setEditServiceModal(false);
-                  setEditingService(null);
-                }}
-                disabled={isEditServiceSaving}
-              >
-                Cancel
-              </Button>
+            <div className="flex flex-col gap-2.5 pt-2">
               <Button
                 type="submit"
                 className="w-full gap-1.5"
@@ -1874,6 +1859,18 @@ export default function AdminDashboardPage() {
                   <Pencil className="w-4 h-4" />
                 )}
                 Save Changes
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setEditServiceModal(false);
+                  setEditingService(null);
+                }}
+                disabled={isEditServiceSaving}
+              >
+                Cancel
               </Button>
             </div>
           </form>
