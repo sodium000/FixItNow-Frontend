@@ -157,7 +157,7 @@ function TechnicianCard({ tech }: { tech: PublicTechnician }) {
   const hourlyRate =
     typeof tech.hourlyRate === "string"
       ? parseFloat(tech.hourlyRate)
-      : tech.hourlyRate ?? 0;
+      : (tech.hourlyRate ?? 0);
   const photoUrl = tech.user?.photoUrl;
 
   return (
@@ -284,7 +284,7 @@ export default function FeaturedTechniciansSection() {
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["topTechnicians"],
     queryFn: async () => {
-      const result = await getTopTechniciansAction(4);
+      const result = await getTopTechniciansAction(5);
       if (!result.success) throw new Error(result.error);
       return result.data;
     },
@@ -312,7 +312,7 @@ export default function FeaturedTechniciansSection() {
               trigger: headingRef.current,
               start: "top 85%",
             },
-          }
+          },
         );
       }
       if (gridRef.current) {
@@ -329,7 +329,7 @@ export default function FeaturedTechniciansSection() {
               trigger: gridRef.current,
               start: "top 80%",
             },
-          }
+          },
         );
       }
     }, sectionRef);
@@ -340,17 +340,23 @@ export default function FeaturedTechniciansSection() {
     <section
       ref={sectionRef}
       aria-labelledby="technicians-heading"
-      className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8"
+      className="mx-auto w-10/12 px-4 py-20 sm:px-6 lg:px-8"
     >
       {/* Heading */}
-      <div ref={headingRef} className="mb-12 flex flex-col items-center text-center gap-3" aria-hidden="false">
+      <div
+        ref={headingRef}
+        className="mb-12 flex flex-col items-center text-center gap-3"
+        aria-hidden="false"
+      >
         <div className="featured-tech-heading-child inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5">
           <ShieldCheck className="h-3.5 w-3.5 text-primary" />
           <span className="text-xs font-semibold text-primary">Our Pros</span>
         </div>
-        <h2 id="technicians-heading" className="featured-tech-heading-child text-3xl font-bold tracking-tight sm:text-4xl">
-          Meet our top-rated{" "}
-          <span className="text-primary">professionals</span>
+        <h2
+          id="technicians-heading"
+          className="featured-tech-heading-child text-3xl font-bold tracking-tight sm:text-4xl"
+        >
+          Meet our top-rated <span className="text-primary">professionals</span>
         </h2>
         <p className="featured-tech-heading-child max-w-2xl text-base text-muted-foreground">
           Every technician on FixItNow is background-checked, skill-verified,
@@ -359,13 +365,9 @@ export default function FeaturedTechniciansSection() {
       </div>
 
       {/* Grid */}
-      <div
-        ref={gridRef}
-        className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
-      >
+      <div ref={gridRef} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
         {/* Loading skeletons */}
-        {isLoading &&
-          [0, 1, 2, 3].map((i) => <SkeletonCard key={i} />)}
+        {isLoading && [0, 1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
 
         {/* Error state */}
         {isError && !isLoading && (
@@ -385,7 +387,9 @@ export default function FeaturedTechniciansSection() {
               disabled={isFetching}
               className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors disabled:opacity-50"
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`}
+              />
               Try again
             </button>
           </div>
@@ -397,7 +401,10 @@ export default function FeaturedTechniciansSection() {
             <Wrench className="h-10 w-10 text-muted-foreground/40" />
             <p className="text-sm text-muted-foreground">
               No verified technicians found yet.{" "}
-              <Link href="/registration" className="text-primary hover:underline">
+              <Link
+                href="/registration"
+                className="text-primary hover:underline"
+              >
                 Join as a technician
               </Link>
             </p>

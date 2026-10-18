@@ -70,16 +70,41 @@ const TESTIMONIALS = [
     service: "Multiple Services",
     date: "October 2026",
   },
+  {
+    id: "7",
+    name: "Rahim Ahmed",
+    role: "Homeowner, Dhanmondi",
+    avatar: "RA",
+    rating: 5,
+    text: "FixItNow makes finding trusted home service professionals so easy. I booked an electrician in just a few minutes, and the service was professional and reliable. The transparent pricing and booking updates gave me peace of mind.",
+    service: "Electrical Services",
+    date: "October 2026",
+  },
+  {
+    id: "8",
+    name: "Nusrat Jahan",
+    role: "Working Professional, Gulshan",
+    avatar: "NJ",
+    rating: 5,
+    text: "With a busy work schedule, I need a convenient way to manage home repairs. FixItNow saves me time by connecting me with skilled technicians. The booking process is simple, and I can easily track my service requests.",
+    service: "Plumbing Services",
+    date: "October 2026",
+  },
 ];
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <div className="flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
+    <div
+      className="flex items-center gap-0.5"
+      aria-label={`${rating} out of 5 stars`}
+    >
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
           className={`h-4 w-4 ${
-            i < rating ? "fill-amber-400 text-amber-400" : "fill-muted text-muted"
+            i < rating
+              ? "fill-amber-400 text-amber-400"
+              : "fill-muted text-muted"
           }`}
         />
       ))}
@@ -94,14 +119,14 @@ export default function TestimonialsSection() {
   const [activeIdx, setActiveIdx] = React.useState(0);
   const [isAnimating, setIsAnimating] = React.useState(false);
 
-  const visibleCount = 3;
+  const visibleCount = 4;
   const totalGroups = Math.ceil(TESTIMONIALS.length / visibleCount);
 
   const goTo = (idx: number) => {
     if (isAnimating) return;
     setIsAnimating(true);
     const next = (idx + totalGroups) % totalGroups;
-    
+
     if (cardsRef.current) {
       gsap.to(cardsRef.current, {
         opacity: 0,
@@ -115,7 +140,7 @@ export default function TestimonialsSection() {
             gsap.fromTo(
               cardsRef.current,
               { opacity: 0, y: 10 },
-              { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
+              { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" },
             );
           }
         },
@@ -142,7 +167,7 @@ export default function TestimonialsSection() {
               trigger: headingRef.current,
               start: "top 85%",
             },
-          }
+          },
         );
       }
 
@@ -159,7 +184,7 @@ export default function TestimonialsSection() {
               trigger: cardsRef.current,
               start: "top 80%",
             },
-          }
+          },
         );
       }
     }, sectionRef);
@@ -169,39 +194,49 @@ export default function TestimonialsSection() {
 
   const currentTestimonials = TESTIMONIALS.slice(
     activeIdx * visibleCount,
-    activeIdx * visibleCount + visibleCount
+    activeIdx * visibleCount + visibleCount,
   );
 
   return (
     <section
       ref={sectionRef}
       aria-labelledby="testimonials-heading"
-      className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8"
+      className="mx-auto max-w-11/12 px-4 py-20 sm:px-6 lg:px-8"
     >
       {/* Heading */}
-      <div ref={headingRef} className="mb-14 flex flex-col items-center text-center gap-3">
+      <div
+        ref={headingRef}
+        className="mb-14 flex flex-col items-center text-center gap-3"
+      >
         <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5">
           <Star className="h-3.5 w-3.5 text-primary fill-primary" />
-          <span className="text-xs font-semibold text-primary">Customer Stories</span>
+          <span className="text-xs font-semibold text-primary">
+            Customer Stories
+          </span>
         </div>
-        <h2 id="testimonials-heading" className="text-3xl font-bold tracking-tight sm:text-4xl">
+        <h2
+          id="testimonials-heading"
+          className="text-3xl font-bold tracking-tight sm:text-4xl"
+        >
           Trusted by thousands of <br className="hidden sm:block" />
           <span className="text-primary">homeowners across Bangladesh</span>
         </h2>
         <p className="max-w-2xl text-base text-muted-foreground">
-          Real experiences from real customers. Our platform's reputation is built one 
-          successful service at a time.
+          Real experiences from real customers. Our platform's reputation is
+          built one successful service at a time.
         </p>
         {/* Overall rating */}
         <div className="mt-2 flex items-center gap-3 rounded-full border border-border bg-card px-5 py-2.5 shadow-sm">
           <StarRating rating={5} />
           <span className="text-sm font-bold text-foreground">4.9</span>
-          <span className="text-xs text-muted-foreground">from 2,400+ reviews</span>
+          <span className="text-xs text-muted-foreground">
+            from 2,400+ reviews
+          </span>
         </div>
       </div>
 
       {/* Testimonial Cards */}
-      <div ref={cardsRef} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div ref={cardsRef} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {currentTestimonials.map((t) => (
           <article
             key={t.id}
@@ -226,8 +261,12 @@ export default function TestimonialsSection() {
                 {t.avatar}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-foreground truncate">{t.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{t.role}</p>
+                <p className="text-sm font-semibold text-foreground truncate">
+                  {t.name}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {t.role}
+                </p>
               </div>
               <div className="shrink-0 text-right">
                 <span className="inline-flex rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-primary">
@@ -258,7 +297,9 @@ export default function TestimonialsSection() {
               id={`testimonial-dot-${i}`}
               onClick={() => goTo(i)}
               className={`h-2 rounded-full transition-all duration-300 ${
-                i === activeIdx ? "w-6 bg-primary" : "w-2 bg-border hover:bg-muted-foreground"
+                i === activeIdx
+                  ? "w-6 bg-primary"
+                  : "w-2 bg-border hover:bg-muted-foreground"
               }`}
               aria-label={`Go to testimonial group ${i + 1}`}
             />

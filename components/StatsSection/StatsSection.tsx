@@ -110,13 +110,14 @@ function AnimatedCounter({
             onUpdate: function () {
               if (el) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                el.textContent = (this as any).targets()[0].value.toFixed(decimals) + suffix;
+                el.textContent =
+                  (this as any).targets()[0].value.toFixed(decimals) + suffix;
               }
             },
             onComplete: () => {
               if (el) el.textContent = target.toFixed(decimals) + suffix;
             },
-          }
+          },
         );
       },
     });
@@ -124,11 +125,7 @@ function AnimatedCounter({
     return () => trigger.kill();
   }, [target, suffix, decimals, duration]);
 
-  return (
-    <span ref={ref}>
-      0{suffix}
-    </span>
-  );
+  return <span ref={ref}>0{suffix}</span>;
 }
 
 export default function StatsSection() {
@@ -152,7 +149,7 @@ export default function StatsSection() {
               trigger: headingRef.current,
               start: "top 85%",
             },
-          }
+          },
         );
       }
 
@@ -170,7 +167,7 @@ export default function StatsSection() {
               trigger: gridRef.current,
               start: "top 80%",
             },
-          }
+          },
         );
       }
     }, sectionRef);
@@ -194,27 +191,32 @@ export default function StatsSection() {
         className="pointer-events-none absolute right-1/4 bottom-0 h-64 w-64 rounded-full bg-primary/5 blur-[80px]"
       />
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto w-10/12 px-4 sm:px-6 lg:px-8">
         {/* Heading */}
-        <div ref={headingRef} className="mb-14 flex flex-col items-center text-center gap-3">
+        <div
+          ref={headingRef}
+          className="mb-14 flex flex-col items-center text-center gap-3"
+        >
           <div className="stats-heading-child inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5">
             <TrendingUp className="h-3.5 w-3.5 text-primary" />
-            <span className="text-xs font-semibold text-primary">Platform Stats</span>
+            <span className="text-xs font-semibold text-primary">
+              Platform Stats
+            </span>
           </div>
-          <h2 id="stats-heading" className="stats-heading-child text-3xl font-bold tracking-tight sm:text-4xl">
+          <h2
+            id="stats-heading"
+            className="stats-heading-child text-3xl font-bold tracking-tight sm:text-4xl"
+          >
             Numbers that speak for themselves
           </h2>
           <p className="stats-heading-child max-w-2xl text-base text-muted-foreground">
-            FixItNow has grown to become Bangladesh&apos;s most trusted home-service platform,
-            one successful booking at a time.
+            FixItNow has grown to become Bangladesh&apos;s most trusted
+            home-service platform, one successful booking at a time.
           </p>
         </div>
 
         {/* Stats Grid */}
-        <div
-          ref={gridRef}
-          className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
-        >
+        <div ref={gridRef} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {STATS.map((stat) => {
             const Icon = stat.icon;
             const isDecimal = stat.value % 1 !== 0;
@@ -231,7 +233,9 @@ export default function StatsSection() {
 
                 <div className="relative flex items-start justify-between">
                   <div>
-                    <div className={`text-4xl font-black tracking-tight ${stat.color}`}>
+                    <div
+                      className={`text-4xl font-black tracking-tight ${stat.color}`}
+                    >
                       <AnimatedCounter
                         target={stat.value}
                         suffix={stat.suffix}
@@ -245,8 +249,13 @@ export default function StatsSection() {
                       {stat.sublabel}
                     </p>
                   </div>
-                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-current/10 ${stat.color}`}>
-                    <Icon className="h-6 w-6" style={{ color: "currentColor" }} />
+                  <div
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-current/10 ${stat.color}`}
+                  >
+                    <Icon
+                      className="h-6 w-6"
+                      style={{ color: "currentColor" }}
+                    />
                   </div>
                 </div>
               </div>
@@ -262,8 +271,8 @@ export default function StatsSection() {
               FixItNow Satisfaction Guarantee
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Every booking is backed by our service guarantee. If you&apos;re not satisfied, 
-              we&apos;ll make it right — no questions asked.
+              Every booking is backed by our service guarantee. If you&apos;re
+              not satisfied, we&apos;ll make it right — no questions asked.
             </p>
           </div>
           <a

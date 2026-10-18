@@ -116,9 +116,15 @@ export default function FaqSection() {
   return (
     <section
       ref={containerRef}
-      className="relative py-20 bg-background text-foreground overflow-hidden"
+      className="relative py-20 bg-transparent text-foreground overflow-hidden"
       aria-labelledby="faq-section-heading"
     >
+      {/* Background glow blobs to match overall aesthetic */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 h-72 w-96 rounded-full bg-primary/10 blur-[100px] z-0"
+      />
+
       {/* Decorative background "?" — purely visual, clipped, theme-aware */}
       <div
         aria-hidden="true"
@@ -159,8 +165,8 @@ export default function FaqSection() {
                 key={item.id}
                 className={`faq-item rounded-2xl border transition-all duration-300 overflow-hidden ${
                   isOpen
-                    ? "bg-primary/5 border-primary/30 shadow-sm"
-                    : "bg-card border-border hover:border-primary/20 hover:bg-accent/50"
+                    ? "bg-primary/5 border-primary/30 shadow-sm backdrop-blur-sm"
+                    : "bg-card/80 backdrop-blur-sm border-border hover:border-primary/20 hover:bg-card"
                 }`}
               >
                 {/* Question button — align-start keeps icon at TOP of row even when text wraps */}
@@ -217,7 +223,7 @@ export default function FaqSection() {
         </div>
 
         {/* Footer note */}
-        <div className="mt-8 flex items-center gap-2 text-xs text-muted-foreground font-medium bg-card border border-border px-4 py-2.5 rounded-full shadow-sm">
+        <div className="mt-8 flex items-center gap-2 text-xs text-muted-foreground font-medium bg-card/80 backdrop-blur-sm border border-border px-4 py-2.5 rounded-full shadow-sm">
           <Sparkles className="w-4 h-4 text-primary animate-pulse shrink-0" />
           <span>Have more questions? Our support team is available 24/7.</span>
         </div>
