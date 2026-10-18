@@ -504,7 +504,7 @@ export default function TechnicianDashboardPage() {
 
         {/* Active Jobs - Mark Complete */}
         {activeJobs.length > 0 && (
-          <section className="space-y-4">
+          <section id="assigned-jobs" className="space-y-4">
             <h2 className="text-lg font-bold text-foreground">Active Jobs</h2>
             <div className="grid gap-3">
               {activeJobs.map((booking) => (

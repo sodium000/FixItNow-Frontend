@@ -4,7 +4,7 @@
 import * as React from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { HelpCircle, Plus, Minus, Sparkles, CheckCircle2 } from "lucide-react";
+import { HelpCircle, Plus, Minus, Sparkles } from "lucide-react";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -68,55 +68,46 @@ export default function FaqSection() {
   const headerRef = React.useRef<HTMLDivElement>(null);
   const listRef = React.useRef<HTMLDivElement>(null);
 
-  // Accordion open item state (Defaults to first item open)
   const [openId, setOpenId] = React.useState<string | null>("1");
 
   const toggleItem = (id: string) => {
     setOpenId((prev) => (prev === id ? null : id));
   };
 
-  // --------------------------------------------------------------------------
-  // GSAP ANIMATIONS
-  // --------------------------------------------------------------------------
+  // GSAP — use CSS class selectors to avoid React DevTools warnings
   React.useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      // Header Animation
-      if (headerRef.current) {
-        gsap.fromTo(
-          headerRef.current.children,
-          { y: 30, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-            stagger: 0.12,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top 80%",
-            },
+      gsap.fromTo(
+        ".faq-heading-child",
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.12,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 80%",
           },
-        );
-      }
+        }
+      );
 
-      // Accordion Items Stagger Animation
-      if (listRef.current) {
-        gsap.fromTo(
-          listRef.current.children,
-          { y: 40, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-            stagger: 0.1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: listRef.current,
-              start: "top 85%",
-            },
+      gsap.fromTo(
+        ".faq-item",
+        { y: 40, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: listRef.current,
+            start: "top 85%",
           },
-        );
-      }
+        }
+      );
     }, containerRef);
 
     return () => ctx.revert();
@@ -125,94 +116,97 @@ export default function FaqSection() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[92vh] pt-20 bg-transparent text-foreground font-sans overflow-hidden selection:bg-primary/20 selection:text-primary"
+      className="relative py-20 bg-background text-foreground overflow-hidden"
+      aria-labelledby="faq-section-heading"
     >
-      {/* Background Subtle Question Mark Graphic */}
+      {/* Decorative background "?" — purely visual, clipped, theme-aware */}
       <div
         aria-hidden="true"
-        className="absolute -top-5 left-100 text-[22rem] font-black text-sky-900 select-none pointer-events-none font-serif -rotate-12 z-0"
+        className="pointer-events-none select-none absolute -top-10 -right-8 text-[18rem] font-black leading-none text-primary/5 dark:text-primary/5 font-serif rotate-12 z-0"
       >
         ?
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto mb-8 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-        {/* =========================================================================
-            HEADER CONTENT
-           ========================================================================= */}
-        <div ref={headerRef} className="text-center max-w-2xl mb-5 ">
-          {/* Tag Ribbon */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-sky-400 font-bold text-xs uppercase tracking-widest shadow-sm">
-            <HelpCircle className="w-4 h-4 text-sky-400" />
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+
+        {/* HEADER */}
+        <div ref={headerRef} className="text-center max-w-2xl mb-10">
+          <div className="faq-heading-child inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold text-xs uppercase tracking-widest mb-4">
+            <HelpCircle className="w-4 h-4" />
             <span>FAQ</span>
           </div>
 
-          {/* Heading */}
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+          <h2
+            id="faq-section-heading"
+            className="faq-heading-child text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-tight"
+          >
             Frequently Asked Questions
           </h2>
 
-          {/* Subheading */}
-          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+          <p className="faq-heading-child mt-3 text-muted-foreground text-sm sm:text-base leading-relaxed">
             Everything you need to know about our emergency repairs, routine
             maintenance, and service guarantees.
           </p>
         </div>
 
-        {/* =========================================================================
-            ACCORDION LIST
-           ========================================================================= */}
-        <div ref={listRef} className="w-full space-y-4">
+        {/* ACCORDION LIST */}
+        <div ref={listRef} className="w-full space-y-3">
           {FAQ_ITEMS.map((item) => {
             const isOpen = openId === item.id;
 
             return (
               <div
                 key={item.id}
-                className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
+                className={`faq-item rounded-2xl border transition-all duration-300 overflow-hidden ${
                   isOpen
-                    ? "bg-slate-900/90 border-sky-500/50 shadow-lg shadow-sky-500/5"
-                    : "bg-slate-900/40 border-slate-800/80 hover:border-slate-700 hover:bg-slate-900/60"
+                    ? "bg-primary/5 border-primary/30 shadow-sm"
+                    : "bg-card border-border hover:border-primary/20 hover:bg-accent/50"
                 }`}
               >
+                {/* Question button — align-start keeps icon at TOP of row even when text wraps */}
                 <button
                   type="button"
                   onClick={() => toggleItem(item.id)}
-                  className="w-full p-5 sm:p-6 flex items-center justify-between gap-4 text-left cursor-pointer select-none outline-none"
+                  className="w-full p-5 sm:p-6 flex items-start justify-between gap-4 text-left cursor-pointer select-none outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
                   aria-expanded={isOpen}
+                  aria-controls={`faq-answer-${item.id}`}
                 >
                   <span
-                    className={`font-bold text-base sm:text-lg transition-colors duration-200 ${
-                      isOpen ? "text-sky-400" : "text-white"
+                    className={`font-semibold text-sm sm:text-base leading-relaxed transition-colors duration-200 ${
+                      isOpen ? "text-primary" : "text-foreground"
                     }`}
                   >
                     {item.question}
                   </span>
 
+                  {/* Plus/Minus icon — shrink-0 prevents it from squishing */}
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border transition-all duration-200 ${
+                    className={`shrink-0 mt-0.5 w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-200 ${
                       isOpen
-                        ? "bg-sky-400/10 border-sky-400/40 text-sky-400"
-                        : "bg-slate-800/80 border-slate-700/80 text-slate-400"
+                        ? "bg-primary/10 border-primary/30 text-primary"
+                        : "bg-muted border-border text-muted-foreground"
                     }`}
                   >
                     {isOpen ? (
-                      <Minus className="w-4 h-4" />
+                      <Minus className="w-3.5 h-3.5" />
                     ) : (
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-3.5 h-3.5" />
                     )}
                   </div>
                 </button>
 
-                {/* Animated Expandable Content */}
+                {/* Answer — CSS grid transition for smooth open/close */}
                 <div
+                  id={`faq-answer-${item.id}`}
+                  role="region"
                   className={`grid transition-all duration-300 ease-in-out ${
                     isOpen
-                      ? "grid-rows-[1fr] opacity-100 pb-6 px-5 sm:px-6"
-                      : "grid-rows-[0fr] opacity-0 pb-0 px-5 sm:px-6"
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <p className="text-slate-300 text-sm sm:text-base leading-relaxed pt-2 border-t border-slate-800/60">
+                    <p className="text-muted-foreground text-sm sm:text-base leading-relaxed pb-5 px-5 sm:px-6 pt-1 border-t border-border">
                       {item.answer}
                     </p>
                   </div>
@@ -222,9 +216,9 @@ export default function FaqSection() {
           })}
         </div>
 
-        {/* Decorative Sparkle Accent */}
-        <div className="mt-5 flex items-center gap-2 text-xs text-slate-400 font-medium bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-full">
-          <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+        {/* Footer note */}
+        <div className="mt-8 flex items-center gap-2 text-xs text-muted-foreground font-medium bg-card border border-border px-4 py-2.5 rounded-full shadow-sm">
+          <Sparkles className="w-4 h-4 text-primary animate-pulse shrink-0" />
           <span>Have more questions? Our support team is available 24/7.</span>
         </div>
       </div>

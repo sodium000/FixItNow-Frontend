@@ -3,8 +3,8 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import type { Role } from "@/lib/types";
-import { CURRENT_USER, CURRENT_TECHNICIAN, MOCK_USERS } from "@/lib/mock-data";
 import { DashboardSidebar } from "./DashboardSidebar";
+import { DashboardNavbar } from "./DashboardNavbar";
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -15,14 +15,11 @@ export function DashboardShell({ children, defaultRole = "CUSTOMER" }: Dashboard
   const router = useRouter();
   const [role, setRole] = React.useState<Role>(defaultRole);
 
-  const adminUser = MOCK_USERS.find((u) => u.role === "ADMIN");
-
-  const activeUser =
-    role === "ADMIN"
-      ? { name: adminUser?.name ?? "Admin User", email: adminUser?.email ?? "admin@fixitnow.com", photoUrl: adminUser?.photoUrl }
-      : role === "TECHNICIAN"
-      ? { name: CURRENT_TECHNICIAN.user?.name ?? "Tanvir Ahmed", email: CURRENT_TECHNICIAN.user?.email ?? "tanvir@example.com", photoUrl: CURRENT_TECHNICIAN.user?.photoUrl }
-      : { name: CURRENT_USER.name, email: CURRENT_USER.email, photoUrl: CURRENT_USER.photoUrl };
+  const activeUser = {
+    name: role === "ADMIN" ? "Administrator" : role === "TECHNICIAN" ? "Technician" : "Customer",
+    email: "",
+    photoUrl: undefined,
+  };
 
   const handleRoleChange = (newRole: Role) => {
     setRole(newRole);
@@ -33,6 +30,7 @@ export function DashboardShell({ children, defaultRole = "CUSTOMER" }: Dashboard
 
   return (
     <div className="min-h-screen flex flex-col bg-background lg:flex-row">
+      {/* Sidebar */}
       <DashboardSidebar
         role={role}
         userName={activeUser.name}
@@ -40,9 +38,16 @@ export function DashboardShell({ children, defaultRole = "CUSTOMER" }: Dashboard
         userPhotoUrl={activeUser.photoUrl}
         onRoleChange={handleRoleChange}
       />
-      <main className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-7xl p-6 lg:p-8">{children}</div>
-      </main>
+
+      {/* Main Content */}
+      <div className="flex flex-1 flex-col min-w-0">
+        {/* Dashboard Navbar with profile dropdown */}
+        <DashboardNavbar />
+
+        <main className="flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-7xl p-6 lg:p-8">{children}</div>
+        </main>
+      </div>
     </div>
   );
 }

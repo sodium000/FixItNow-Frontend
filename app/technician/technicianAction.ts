@@ -388,7 +388,6 @@ export const updateTechnicianBookingStatusAction = async (
   status: BookingStatus,
 ) => {
   try {
-    console.log(bookingId, status);
 
     const { accessToken, headers } = await getAuthHeaders();
 

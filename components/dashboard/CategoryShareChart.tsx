@@ -1,58 +1,99 @@
 "use client";
 
+import * as React from "react";
 import { formatCurrency } from "@/lib/mock-data";
 
 interface CategoryShareChartProps {
-  categories: any[];
-  bookings: any[];
+  categories?: any[];
+  bookings?: any[];
 }
 
 export function CategoryShareChart({
   categories = [],
   bookings = [],
 }: CategoryShareChartProps) {
-  const safeServices = Array.isArray(categories) ? categories : [];
+  const safeCategories = Array.isArray(categories) ? categories : [];
   const safeBookings = Array.isArray(bookings) ? bookings : [];
 
-  // Group services by category
-  const categoryMap = new Map();
+  // Group and extract categories from both the categories prop AND bookings
+  const categoryMap = new Map<string, { id: string; name: string }>();
 
-  safeServices.forEach((service) => {
-    if (!service?.category) return;
-
-    const categoryId = service.category.id;
-
-    if (!categoryMap.has(categoryId)) {
-      categoryMap.set(categoryId, {
-        id: categoryId,
-        name: service.category.name,
+  // 1. Ingest from categories prop (handles { id, name } or { category: { id, name } })
+  safeCategories.forEach((item: any) => {
+    if (!item) return;
+    if (item.id && item.name) {
+      categoryMap.set(String(item.id), {
+        id: String(item.id),
+        name: String(item.name),
       });
+    } else if (item.category?.id && item.category?.name) {
+      categoryMap.set(String(item.category.id), {
+        id: String(item.category.id),
+        name: String(item.category.name),
+      });
+    }
+  });
+
+  // 2. Also ingest from bookings (in case categories list has not loaded or differs)
+  safeBookings.forEach((b: any) => {
+    const cat = b?.service?.category;
+    if (cat?.id && cat?.name) {
+      if (!categoryMap.has(String(cat.id))) {
+        categoryMap.set(String(cat.id), {
+          id: String(cat.id),
+          name: String(cat.name),
+        });
+      }
     }
   });
 
   const uniqueCategories = Array.from(categoryMap.values());
 
-  const categoryStats = uniqueCategories.map((category: any) => {
-    const categoryBookings = safeBookings.filter(
-      (booking) => booking?.service?.categoryId === category.id,
-    );
+  const categoryStats = uniqueCategories
+    .map((category) => {
+      // Find all bookings belonging to this category
+      const categoryBookings = safeBookings.filter((booking: any) => {
+        const sCatId = booking?.service?.categoryId;
+        const bCatId = booking?.service?.category?.id || booking?.categoryId;
+        const bCatName =
+          booking?.service?.category?.name || booking?.categoryName;
+        return (
+          String(sCatId) === category.id ||
+          String(bCatId) === category.id ||
+          (bCatName &&
+            bCatName.trim().toLowerCase() === category.name.trim().toLowerCase())
+        );
+      });
 
-    const completedBookings = categoryBookings.filter(
-      (booking) => booking.status === "COMPLETED",
-    );
+      // Sum completed revenue first
+      const completedBookings = categoryBookings.filter(
+        (booking: any) => booking.status === "COMPLETED",
+      );
 
-    const revenue = completedBookings.reduce(
-      (sum, booking) => sum + Number(booking.totalAmount ?? 0),
-      0,
-    );
+      const completedRevenue = completedBookings.reduce(
+        (sum: number, booking: any) =>
+          sum + Number(booking.totalAmount ?? booking.price ?? 0),
+        0,
+      );
 
-    return {
-      id: category.id,
-      name: category.name,
-      bookingsCount: categoryBookings.length,
-      revenue,
-    };
-  });
+      // Total booking revenue (completed or active)
+      const allRevenue = categoryBookings.reduce(
+        (sum: number, booking: any) =>
+          sum + Number(booking.totalAmount ?? booking.price ?? 0),
+        0,
+      );
+
+      const revenue = completedRevenue > 0 ? completedRevenue : allRevenue;
+
+      return {
+        id: category.id,
+        name: category.name,
+        bookingsCount: categoryBookings.length,
+        revenue,
+      };
+    })
+    // Sort categories with highest revenue first, then highest booking count
+    .sort((a, b) => b.revenue - a.revenue || b.bookingsCount - a.bookingsCount);
 
   const maxRevenue = Math.max(...categoryStats.map((item) => item.revenue), 1);
 
@@ -62,24 +103,25 @@ export function CategoryShareChart({
   );
 
   const colors = [
-    "#8B5CF6",
-    "#06B6D4",
-    "#10B981",
-    "#F59E0B",
-    "#EF4444",
-    "#6366F1",
-    "#EC4899",
-    "#14B8A6",
+    "#8B5CF6", // purple
+    "#06B6D4", // cyan
+    "#10B981", // emerald
+    "#F59E0B", // amber
+    "#EF4444", // rose
+    "#6366F1", // indigo
+    "#EC4899", // pink
+    "#14B8A6", // teal
   ];
 
   return (
     <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Service Category Revenue</h3>
-
+          <h3 className="text-lg font-semibold text-foreground">
+            Service Category Revenue
+          </h3>
           <p className="text-sm text-muted-foreground">
-            Revenue grouped by service category
+            Revenue and booking volume grouped by service category
           </p>
         </div>
 
@@ -89,8 +131,8 @@ export function CategoryShareChart({
       </div>
 
       {categoryStats.length === 0 ? (
-        <div className="flex h-48 items-center justify-center text-muted-foreground">
-          No category data available.
+        <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
+          No category revenue data available.
         </div>
       ) : (
         <div className="max-h-[350px] space-y-5 overflow-y-auto pr-2">
@@ -106,20 +148,23 @@ export function CategoryShareChart({
                 : Math.max((item.revenue / maxRevenue) * 100, 8);
 
             return (
-              <div key={item.id}>
-                <div className="mb-2 flex items-center justify-between">
+              <div key={item.id} className="space-y-1.5">
+                <div className="flex items-center justify-between text-sm">
                   <div>
-                    <p className="font-semibold">{item.name}</p>
-
+                    <p className="font-semibold text-foreground">{item.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {item.bookingsCount} Bookings
+                      {item.bookingsCount} Booking
+                      {item.bookingsCount !== 1 ? "s" : ""}
                     </p>
                   </div>
 
                   <div className="text-right">
-                    <p className="font-bold">{formatCurrency(item.revenue)}</p>
-
-                    <p className="text-xs text-primary">{percent}%</p>
+                    <p className="font-bold text-foreground">
+                      {formatCurrency(item.revenue)}
+                    </p>
+                    <p className="text-xs font-semibold text-primary">
+                      {percent}%
+                    </p>
                   </div>
                 </div>
 

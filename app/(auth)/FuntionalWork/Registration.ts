@@ -13,11 +13,10 @@ export const RegistrationHandle = async (data: RegUserType) => {
       photoUrl: photo,
     };
 
-    console.log(payload)
 
     const res = await axiosInstance.post("/api/auth/register", payload);
     return { success: true, data: res.data };
-  } catch (error: any) {
+  } catch (error: unknown) {
     const message = getErrorMessage(
       error,
       "Registration failed. Please check your details.",

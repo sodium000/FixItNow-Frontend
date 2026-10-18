@@ -32,23 +32,23 @@ const TRUST_FEATURES: readonly FeatureItem[] = [
   },
   {
     id: "quick-response",
-    title: "Quick Response",
+    title: "Local service options",
     description:
-      "Fast doorstep service delivered within a few hours of booking.",
+      "Browse providers and locations currently available in the service directory.",
     icon: Zap,
   },
   {
     id: "tools",
-    title: "Advanced Tools",
+    title: "Professional details",
     description:
-      "Modern diagnostic equipment ensures accurate and lasting repairs.",
+      "Review listed experience, verification, location, and ratings where available.",
     icon: Wrench,
   },
   {
     id: "pricing",
-    title: "Affordable Pricing",
+    title: "Review pricing",
     description:
-      "Transparent, upfront pricing with guaranteed zero hidden charges.",
+      "Check the listed service price and confirm the final scope with your professional.",
     icon: Banknote,
   },
 ];
@@ -266,7 +266,7 @@ export default function WhyUsSection() {
                
                 <div>
                   <h4 className="text-sm font-bold text-foreground">
-                    100% Guaranteed
+                    Review service details
                   </h4>
                   <p className="text-xs text-muted-foreground">
                     Quality repairs & authentic parts

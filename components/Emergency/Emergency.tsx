@@ -36,26 +36,26 @@ interface FeatureCard {
 const EMERGENCY_FEATURES: readonly FeatureCard[] = [
   {
     id: "rapid-response",
-    title: "Rapid Response Time",
-    description: "We arrive fast when you need urgent help.",
+    title: "Urgent repair options",
+    description: "Browse listed services for time-sensitive home repairs.",
     icon: Clock,
   },
   {
     id: "instant-support",
-    title: "Instant Support",
-    description: "Quick help and clear communication.",
+    title: "Service guidance",
+    description: "Get help choosing a service or preparing for a visit.",
     icon: MessageSquare,
   },
   {
     id: "expert-technicians",
-    title: "Expert Technicians",
-    description: "Skilled professionals for all AC issues.",
+    title: "Professional profiles",
+    description: "Review experience and availability where listed.",
     icon: Wrench,
   },
   {
     id: "247-availability",
-    title: "24/7 Availability",
-    description: "We arrive fast when you need urgent help.",
+    title: "Availability details",
+    description: "Confirm scheduling options with the professional.",
     icon: ShieldCheck,
   },
 ];
@@ -182,7 +182,7 @@ export default function EmergencyHeroSection() {
               {/* Main Title */}
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.15]">
                 AC Emergency? <br />
-                <span className="text-primary">We're Available 24/7</span>
+                <span className="text-primary">Find help for urgent repairs</span>
               </h1>
 
               {/* Description */}

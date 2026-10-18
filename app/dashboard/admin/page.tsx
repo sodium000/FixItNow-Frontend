@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Phone,
   Calendar,
+  Search,
   X,
   ChevronLeft,
   ChevronRight,
@@ -37,10 +38,6 @@ import { CategoryShareChart } from "@/components/dashboard/CategoryShareChart";
 import { BookingTrendsChart } from "@/components/dashboard/BookingTrendsChart";
 import { BookingsTable } from "@/components/dashboard/BookingsTable";
 import {
-  MOCK_USERS,
-  MOCK_BOOKINGS,
-  MOCK_REVENUE_DATA,
-  getTechnicianName,
   formatCurrency,
   formatDate,
 } from "@/lib/mock-data";
@@ -73,7 +70,13 @@ import {
 import { getMyProfileAction } from "@/lib/profileAction";
 import Image from "next/image";
 
-type AdminTab = "overview" | "users" | "technicians" | "services" | "bookings";
+type AdminTab =
+  | "overview"
+  | "analytics"
+  | "users"
+  | "technicians"
+  | "services"
+  | "bookings";
 type ChartFilter = "all" | "revenue" | "status" | "categories" | "trends";
 
 // ─── Reusable Confirm Dialog (Stacked Column Buttons) ───────────────────────
@@ -166,11 +169,23 @@ export default function AdminDashboardPage() {
 
   const [activeTab, setActiveTab] = React.useState<AdminTab>("overview");
   const [chartFilter, setChartFilter] = React.useState<ChartFilter>("all");
+  const [userSearch, setUserSearch] = React.useState("");
+
+  React.useEffect(() => {
+    const tab = window.location.hash.replace("#admin-", "");
+    if (
+      ["overview", "analytics", "users", "technicians", "services", "bookings"].includes(
+        tab,
+      )
+    ) {
+      setActiveTab(tab as AdminTab);
+    }
+  }, []);
 
   // Pagination States
   const [usersPage, setUsersPage] = React.useState(1);
   const [categoriesPage, setCategoriesPage] = React.useState(1);
-  const [bookingsPage] = React.useState(1);
+  const [bookingsPage, setBookingsPage] = React.useState(1);
 
   // Admin Profile Photo State
   const [isPhotoModalOpen, setIsPhotoModalOpen] = React.useState(false);
@@ -249,8 +264,7 @@ export default function AdminDashboardPage() {
     staleTime: 1000 * 60 * 2,
   });
 
-  const adminUser =
-    myProfile || MOCK_USERS.find((u) => u.role === "ADMIN") || MOCK_USERS[0];
+  const adminUser = myProfile;
 
   // 2. Fetch Admin Categories with Pagination
   const {
@@ -293,6 +307,15 @@ export default function AdminDashboardPage() {
   });
 
   const usersList: User[] = usersRes?.data?.Alluser ?? [];
+  const filteredUsers = React.useMemo(() => {
+    const query = userSearch.trim().toLowerCase();
+    if (!query) return usersList;
+    return usersList.filter((user) =>
+      [user.name, user.email, user.phone, user.role]
+        .filter(Boolean)
+        .some((value) => value?.toLowerCase().includes(query) ?? false),
+    );
+  }, [usersList, userSearch]);
   const usersMeta = usersRes?.meta || {
     page: 1,
     limit: 2,
@@ -315,8 +338,13 @@ export default function AdminDashboardPage() {
   });
 
   const rawBookings = bookingsRes?.data.Allbooking || [];
-  const bookingsList: Booking[] =
-    rawBookings.length > 0 ? rawBookings : MOCK_BOOKINGS;
+  const bookingsList: Booking[] = Array.isArray(rawBookings) ? rawBookings : [];
+  const bookingsMeta = bookingsRes?.meta || {
+    page: bookingsPage,
+    limit: 10,
+    total: bookingsList.length,
+    totalPages: 1,
+  };
 
   // Derived Dynamic Analytics from API Bookings
   const totalRevenue = bookingsList
@@ -340,7 +368,7 @@ export default function AdminDashboardPage() {
 
   // Dynamic Monthly Revenue Data for Charts
   const dynamicRevenueData: RevenueDataPoint[] = React.useMemo(() => {
-    if (rawBookings.length === 0) return MOCK_REVENUE_DATA;
+    if (rawBookings.length === 0) return [];
 
     const monthlyMap: Record<string, { revenue: number; bookings: number }> =
       {};
@@ -677,7 +705,8 @@ export default function AdminDashboardPage() {
   };
 
   const tabs: { id: AdminTab; label: string }[] = [
-    { id: "overview", label: "Overview & Analytics" },
+    { id: "overview", label: "Overview" },
+    { id: "analytics", label: "Platform Insights" },
     { id: "users", label: "Users Management" },
     { id: "technicians", label: "Technicians" },
     { id: "services", label: "Service Categories" },
@@ -705,16 +734,19 @@ export default function AdminDashboardPage() {
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="relative group shrink-0">
-                <Image
-                  width={50}
-                  height={50}
-                  src={
-                    adminUser?.photoUrl ||
-                    "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=300&auto=format&fit=crop&q=80"
-                  }
-                  alt={adminUser?.name || "Admin Avatar"}
-                  className="h-20 w-20 rounded-2xl border-2 border-primary/40 object-cover shadow-sm transition-transform duration-300 group-hover:scale-105"
-                />
+                {adminUser?.photoUrl ? (
+                  <Image
+                    width={80}
+                    height={80}
+                    src={adminUser.photoUrl}
+                    alt={adminUser.name}
+                    className="h-20 w-20 rounded-2xl border-2 border-primary/40 object-cover shadow-sm transition-transform duration-300 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl border-2 border-primary/40 bg-primary/10 text-2xl font-bold text-primary">
+                    {adminUser?.name?.slice(0, 1).toUpperCase() || "A"}
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={() => {
@@ -731,7 +763,7 @@ export default function AdminDashboardPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-xl font-bold text-foreground">
-                    {adminUser?.name || "System Admin"}
+                    {adminUser?.name || "Administrator"}
                   </h2>
                   <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-primary">
                     <ShieldCheck className="h-3 w-3" />
@@ -739,17 +771,19 @@ export default function AdminDashboardPage() {
                   </span>
                 </div>
                 <p className="mt-0.5 text-sm text-muted-foreground">
-                  {adminUser?.email || "admin@fixitnow.com"}
+                  {adminUser?.email || "Signed-in administrator"}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Phone className="h-3 w-3" />
-                    {adminUser?.phone ?? "+880 1700-000099"}
+                    {adminUser?.phone}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    Joined {formatDate(adminUser?.createdAt || "2025-06-01")}
-                  </span>
+                  {adminUser?.createdAt && (
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      Joined {formatDate(adminUser.createdAt)}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -774,8 +808,12 @@ export default function AdminDashboardPage() {
           {tabs.map((tab) => (
             <button
               key={tab.id}
+              id={`dashboard-tab-${tab.id}`}
               type="button"
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id);
+                window.location.hash = `admin-${tab.id}`;
+              }}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 activeTab === tab.id
                   ? "bg-background text-foreground shadow-sm font-bold"
@@ -787,7 +825,7 @@ export default function AdminDashboardPage() {
           ))}
         </div>
 
-        {/* TAB 1: OVERVIEW & ANALYTICS */}
+        {/* TAB 1: OVERVIEW */}
         {activeTab === "overview" && (
           <div className="space-y-8">
             {/* Stat Cards */}
@@ -815,7 +853,6 @@ export default function AdminDashboardPage() {
                 value={isBookingsLoading ? "..." : formatCurrency(totalRevenue)}
                 subtitle="From completed bookings"
                 icon={DollarSign}
-                trend={{ value: "+12.5% vs last month", positive: true }}
               />
             </div>
 
@@ -890,7 +927,30 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* TAB 2: USERS MANAGEMENT */}
+        {activeTab === "analytics" && (
+          <section className="space-y-6">
+            <div>
+              <h2 className="flex items-center gap-2 text-xl font-bold text-foreground">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                Platform insights
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Charts are derived from the bookings and categories currently loaded from the platform.
+              </p>
+            </div>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <RevenueChart data={dynamicRevenueData} />
+              <BookingStatusChart bookings={bookingsList} />
+              <CategoryShareChart
+                categories={categoriesList}
+                bookings={bookingsList}
+              />
+              <BookingTrendsChart data={dynamicRevenueData} />
+            </div>
+          </section>
+        )}
+
+        {/* TAB 3: USERS MANAGEMENT */}
         {activeTab === "users" && (
           <section className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -905,7 +965,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="text-xs text-muted-foreground font-medium">
-                Showing {usersList.length} users (Page {usersMeta.page} of{" "}
+                Showing {filteredUsers.length} users on this page (Page {usersMeta.page} of{" "}
                 {usersMeta.totalPages})
               </div>
             </div>
@@ -916,6 +976,16 @@ export default function AdminDashboardPage() {
               </div>
             ) : (
               <>
+                <div className="relative max-w-sm">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={userSearch}
+                    onChange={(event) => setUserSearch(event.target.value)}
+                    placeholder="Filter this page by name, email, phone, or role"
+                    aria-label="Filter users"
+                    className="pl-9"
+                  />
+                </div>
                 <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
                   <table className="w-full text-left text-sm">
                     <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground border-b border-border">
@@ -933,23 +1003,26 @@ export default function AdminDashboardPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                      {usersList.map((user) => (
+                      {filteredUsers.map((user) => (
                         <tr
                           key={user.id}
                           className="hover:bg-muted/30 transition-colors"
                         >
                           <td className="px-4 py-3.5">
                             <div className="flex items-center gap-3">
-                              <Image
-                                width={50}
-                                height={50}
-                                src={
-                                  user.photoUrl ||
-                                  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop"
-                                }
-                                alt={user.name}
-                                className="h-9 w-9 rounded-full border border-border object-cover shrink-0"
-                              />
+                                      {user.photoUrl ? (
+                                        <Image
+                                          width={36}
+                                          height={36}
+                                          src={user.photoUrl}
+                                          alt={user.name}
+                                          className="h-9 w-9 rounded-full border border-border object-cover shrink-0"
+                                        />
+                                      ) : (
+                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-primary/10 text-sm font-bold text-primary">
+                                          {user.name.slice(0, 1).toUpperCase() || "U"}
+                                        </div>
+                                      )}
                               <span className="font-semibold text-foreground">
                                 {user.name}
                               </span>
@@ -1035,6 +1108,16 @@ export default function AdminDashboardPage() {
                           </td>
                         </tr>
                       ))}
+                      {filteredUsers.length === 0 && (
+                        <tr>
+                          <td
+                            colSpan={8}
+                            className="px-4 py-10 text-center text-sm text-muted-foreground"
+                          >
+                            No users on this page match your filter.
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -1457,9 +1540,6 @@ export default function AdminDashboardPage() {
                                     </td>
                                     <td className="px-4 py-3 text-muted-foreground">
                                       {service.technician?.user?.name ||
-                                        getTechnicianName(
-                                          service.technicianId || "",
-                                        ) ||
                                         service.technicianId ||
                                         "—"}
                                     </td>
@@ -1568,6 +1648,31 @@ export default function AdminDashboardPage() {
               </div>
             ) : (
               <BookingsTable bookings={bookingsList} />
+            )}
+            {!isBookingsLoading && bookingsMeta.totalPages > 1 && (
+              <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
+                <span className="text-xs text-muted-foreground">
+                  Page {bookingsMeta.page} of {bookingsMeta.totalPages}
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={bookingsPage <= 1}
+                    onClick={() => setBookingsPage((page) => Math.max(1, page - 1))}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={bookingsPage >= bookingsMeta.totalPages}
+                    onClick={() => setBookingsPage((page) => page + 1)}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
             )}
           </section>
         )}

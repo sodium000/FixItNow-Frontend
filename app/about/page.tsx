@@ -33,39 +33,39 @@ interface Feature {
 const FEATURES: readonly Feature[] = [
   {
     id: "1",
-    title: "24/7 Emergency Service",
+    title: "Browse home services",
     description:
-      "Rapid response technicians available around the clock when your system breaks down.",
+      "Explore the services currently listed in the FixItNow directory.",
     icon: Clock,
   },
   {
     id: "2",
-    title: "Certified HVAC Experts",
+    title: "Professional profiles",
     description:
-      "Licensed, background-checked professionals trained to handle all major AC brands.",
+      "Review experience, location, and verification details where provided.",
     icon: ShieldCheck,
   },
   {
     id: "3",
-    title: "Upfront & Honest Pricing",
+    title: "Service information",
     description:
-      "Flat-rate diagnostic fees with zero hidden costs or surprise charges on your bill.",
+      "Compare the listing price and service description before you request a booking.",
     icon: Award,
   },
   {
     id: "4",
-    title: "100% Satisfaction Guarantee",
+    title: "Booking management",
     description:
-      "We stand behind our work with comprehensive warranties on all parts and labor.",
+      "Use your dashboard to review your booking and its current status.",
     icon: Wrench,
   },
 ];
 
 const STATS = [
-  { value: "10+", label: "Years Experience" },
-  { value: "15k+", label: "Cool Spaces Fixed" },
-  { value: "99%", label: "Satisfaction Rate" },
-  { value: "24/7", label: "Emergency Support" },
+  { value: "Services", label: "Browse listed home-service options" },
+  { value: "Profiles", label: "Review available professional details" },
+  { value: "Bookings", label: "Track requests in your dashboard" },
+  { value: "Support", label: "Get help with the service flow" },
 ];
 
 // ============================================================================
@@ -221,7 +221,7 @@ export default function AboutSection() {
             {/* Tag Badge */}
             <div className="inline-flex items-center mt-10 gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-sky-400 font-bold text-xs uppercase tracking-widest shadow-sm">
               <Users className="w-4 h-4 text-sky-400" />
-              <span>About CoolFix</span>
+              <span>About FixItNow</span>
             </div>
 
             {/* Main Title */}
@@ -232,10 +232,9 @@ export default function AboutSection() {
 
             {/* Description */}
             <p className="text-slate-400 text-base leading-relaxed">
-              At CoolFix, we understand how essential a fully functioning AC is
-              for your comfort and productivity. Over the past decade, we’ve
-              built our reputation on fast arrival times, transparent flat-rate
-              pricing, and high-quality repairs done right the first time.
+              FixItNow helps customers browse home-service listings, review
+              professional details, and manage booking requests. Availability,
+              pricing, and service information depend on each listing.
             </p>
 
             {/* Key Feature List Grid */}

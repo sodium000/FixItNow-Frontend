@@ -5,7 +5,6 @@ import { Search, Calendar, MapPin, Wrench, Star } from "lucide-react";
 import type { Booking, BookingStatus } from "@/lib/types";
 import { formatCurrency, formatDateTime } from "@/lib/mock-data";
 import { StatusBadge } from "./StatusBadge";
-import Image from "next/image";
 
 interface BookingsTableProps {
   bookings: Booking[];
@@ -30,6 +29,8 @@ export function BookingsTable({
   const [selectedStatus, setSelectedStatus] = React.useState<
     BookingStatus | "ALL"
   >("ALL");
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const pageSize = 10;
 
   // Filter bookings based on search & selected status
   const filteredBookings = React.useMemo(() => {
@@ -55,6 +56,17 @@ export function BookingsTable({
       return matchesStatus && matchesSearch;
     });
   }, [bookings, searchQuery, selectedStatus]);
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedStatus]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredBookings.length / pageSize));
+  const visiblePage = Math.min(currentPage, totalPages);
+  const visibleBookings = filteredBookings.slice(
+    (visiblePage - 1) * pageSize,
+    visiblePage * pageSize,
+  );
 
   const statusCounts = {
     ALL: bookings.length,
@@ -127,7 +139,7 @@ export function BookingsTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filteredBookings.map((booking) => (
+              {visibleBookings.map((booking) => (
                 <tr
                   key={booking.id}
                   className="hover:bg-muted/40 transition-colors"
@@ -155,16 +167,12 @@ export function BookingsTable({
                   {showCustomer && (
                     <td className="px-5 py-4 text-muted-foreground">
                       <div className="flex items-center gap-2.5">
-                        <Image 
-                          src={
-                            booking.customer?.photoUrl ||
-                            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop"
-                          }
-                          alt={booking.customer?.name || "Customer"}
-                          className="h-8 w-8 rounded-full border border-border object-cover shrink-0"
-                          width={250}
-                          height={250}
-                        />
+                        <div
+                          aria-hidden="true"
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-primary/10 text-xs font-bold text-primary"
+                        >
+                          {booking.customer?.name?.slice(0, 1).toUpperCase() || "C"}
+                        </div>
                         <span className="font-semibold text-foreground text-xs">
                           {booking.customer?.name ?? "—"}
                         </span>
@@ -176,17 +184,12 @@ export function BookingsTable({
                   {showTechnician && (
                     <td className="px-5 py-4 text-muted-foreground">
                       <div className="flex items-center gap-2.5">
-                        <Image
-                          src={
-                            booking.technician?.user?.photoUrl ||
-                            "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop"
-
-                          }
-                           width={250}
-                          height={250}
-                          alt={booking.technician?.user?.name || "Technician"}
-                          className="h-8 w-8 rounded-full border border-border object-cover shrink-0"
-                        />
+                        <div
+                          aria-hidden="true"
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-primary/10 text-xs font-bold text-primary"
+                        >
+                          {booking.technician?.user?.name?.slice(0, 1).toUpperCase() || "T"}
+                        </div>
                         <div>
                           <p className="font-semibold text-foreground text-xs">
                             {booking.technician?.user?.name ?? "Assigned Tech"}
@@ -258,6 +261,41 @@ export function BookingsTable({
             </tbody>
           </table>
         </div>
+      )}
+      {filteredBookings.length > 0 && (
+        <nav
+          aria-label="Booking table pages"
+          className="flex items-center justify-between border-t border-border px-4 py-3"
+        >
+          <p className="text-xs text-muted-foreground">
+            Showing {(visiblePage - 1) * pageSize + 1}–
+            {Math.min(visiblePage * pageSize, filteredBookings.length)} of{" "}
+            {filteredBookings.length}
+          </p>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                disabled={visiblePage === 1}
+                onClick={() => setCurrentPage((page) => page - 1)}
+                className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Previous
+              </button>
+              <span className="text-xs text-muted-foreground">
+                Page {visiblePage} of {totalPages}
+              </span>
+              <button
+                type="button"
+                disabled={visiblePage === totalPages}
+                onClick={() => setCurrentPage((page) => page + 1)}
+                className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </nav>
       )}
     </div>
   );
